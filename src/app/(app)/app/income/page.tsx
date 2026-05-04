@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { GlassSurface } from "@/components/ui/glass-surface"
 import { TransactionList } from "@/components/transactions/transaction-list"
 import { StaggerChildren, StaggerItem } from "@/components/motion/stagger-children"
-import { formatCurrency } from "@/lib/format"
+import { formatCurrency, formatCurrencyCompact } from "@/lib/format"
 import type { Transaction, Source } from "@/types/database"
 import { TrendingUp } from "lucide-react"
 import { FilteredTransactions } from "@/components/transactions/filtered-transactions"
@@ -41,16 +41,16 @@ export default async function IncomePage() {
         </div>
       </StaggerItem>
       <StaggerItem>
-        <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
           {[
             { label: "Tamamlanan", value: total, count: completed.length, color: "text-green-400" },
             { label: "Bekleyen", value: pending.reduce((a, t) => a + t.amount, 0), count: pending.length, color: "text-purple-400" },
-            { label: "Toplam İşlem", value: null, count: txs.length, color: "text-white" },
+            { label: "Toplam", value: null, count: txs.length, color: "text-white" },
           ].map(({ label, value, count, color }) => (
-            <GlassSurface key={label} className="p-4">
-              <p className="text-xs text-white/40 mb-1">{label}</p>
-              {value !== null && <p className={`text-lg font-bold tabular-nums font-mono ${color}`}>{formatCurrency(value, currency)}</p>}
-              <p className="text-xs text-white/30 mt-0.5">{count} işlem</p>
+            <GlassSurface key={label} className="p-3 sm:p-4">
+              <p className="text-[10px] sm:text-xs text-white/40 mb-1">{label}</p>
+              {value !== null && <p className={`text-sm sm:text-base font-bold tabular-nums font-mono truncate ${color}`}>{formatCurrencyCompact(value, currency)}</p>}
+              <p className="text-[10px] text-white/30 mt-0.5">{count} işlem</p>
             </GlassSurface>
           ))}
         </div>

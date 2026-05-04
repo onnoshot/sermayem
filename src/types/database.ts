@@ -20,6 +20,9 @@ export interface Profile {
   timezone: string
   locale: string
   onboarded_at: string | null
+  age: number | null
+  gender: "erkek" | "kadin" | "belirtmek_istemiyorum" | null
+  city: string | null
   created_at: string
   updated_at: string
 }

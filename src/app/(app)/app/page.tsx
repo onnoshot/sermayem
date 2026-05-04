@@ -131,12 +131,7 @@ export default async function DashboardPage() {
         </div>
       </StaggerItem>
 
-      {/* Charts Row — lazy loaded */}
-      <StaggerItem>
-        <ChartsSection transactions={txs} completed={completed} sources={sources || []} currency={currency} />
-      </StaggerItem>
-
-      {/* Bottom Row */}
+      {/* Calendar + Son Islemler */}
       <StaggerItem>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <GlassSurface className="p-5">
@@ -159,12 +154,17 @@ export default async function DashboardPage() {
                 <p className="text-xs text-white/35 mt-0.5">Tamamlananlar</p>
               </div>
               <Link href="/app/income" className="flex items-center gap-1 text-xs text-[#E50001] hover:text-red-400 transition-colors">
-                Tumü <ArrowRight className="h-3.5 w-3.5" />
+                Tumu <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
             <TransactionList transactions={completed.slice(0, 5)} currency={currency} showEdit />
           </GlassSurface>
         </div>
+      </StaggerItem>
+
+      {/* Charts Row — lazy loaded */}
+      <StaggerItem>
+        <ChartsSection transactions={txs} completed={completed} sources={sources || []} currency={currency} />
       </StaggerItem>
 
     </StaggerChildren>

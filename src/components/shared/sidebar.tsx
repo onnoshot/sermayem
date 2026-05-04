@@ -72,25 +72,26 @@ export function Sidebar({ profile }: SidebarProps) {
       {/* Header */}
       <div className={cn("flex items-center h-[68px] border-b border-white/[0.06] px-4 gap-3 flex-shrink-0", !sidebarOpen && "justify-center px-0")}>
         <motion.div
-          className="h-9 w-9 rounded-[11px] flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
-          style={{ background: "linear-gradient(135deg, #EAB308, #D97706)" }}
+          className="h-9 w-9 rounded-[11px] flex items-center justify-center flex-shrink-0 overflow-hidden bg-white/[0.04]"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <span className="text-black font-black text-sm">S</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/favicon.svg" alt="Sermayem" className="h-6 w-6 object-contain" />
         </motion.div>
 
         <AnimatePresence>
           {sidebarOpen && (
-            <motion.span
+            <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
-              className="font-black text-white text-lg tracking-tight whitespace-nowrap flex-1"
+              className="flex-1 overflow-hidden"
             >
-              Sermayem
-            </motion.span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/sermayem.svg" alt="Sermayem" className="h-5 object-contain object-left" />
+            </motion.div>
           )}
         </AnimatePresence>
 

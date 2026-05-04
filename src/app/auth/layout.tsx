@@ -55,17 +55,18 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       >
         <div className="flex items-center gap-3">
           <motion.div
-            className="h-10 w-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #EAB308 0%, #D97706 100%)" }}
+            className="h-10 w-10 rounded-[12px] flex items-center justify-center flex-shrink-0 bg-white/[0.06] overflow-hidden"
             initial={{ scale: 0, rotate: -15 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 280, damping: 22, delay: 0.2 }}
           >
-            <span className="text-black font-black text-base">S</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/favicon.svg" alt="S" className="h-7 w-7 object-contain" />
           </motion.div>
-          <motion.span className="text-white font-bold text-xl tracking-tight" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35, duration: 0.4 }}>
-            Sermayem
-          </motion.span>
+          <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35, duration: 0.4 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/sermayem.svg" alt="Sermayem" className="h-5 object-contain" />
+          </motion.div>
         </div>
 
         <div className="space-y-10">
@@ -122,18 +123,18 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             <motion.div
-              className="h-9 w-9 rounded-[11px] flex items-center justify-center shadow-[0_0_24px_rgba(234,179,8,0.35)]"
-              style={{ background: "linear-gradient(135deg, #EAB308, #D97706)" }}
+              className="h-9 w-9 rounded-[11px] flex items-center justify-center bg-white/[0.06] overflow-hidden"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
             >
-              <span className="text-black font-black text-sm">S</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/favicon.svg" alt="S" className="h-6 w-6 object-contain" />
             </motion.div>
-            <motion.span className="text-white font-black text-xl tracking-tight"
-              initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-              Sermayem
-            </motion.span>
+            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/sermayem.svg" alt="Sermayem" className="h-5 object-contain" />
+            </motion.div>
           </motion.div>
 
           {/* Headline */}

@@ -22,13 +22,10 @@ export function MobileTopBar() {
       </button>
 
       <div className="flex items-center gap-2">
-        <div
-          className="h-7 w-7 rounded-[9px] flex items-center justify-center shadow-[0_0_12px_rgba(234,179,8,0.3)]"
-          style={{ background: "linear-gradient(135deg, #EAB308, #D97706)" }}
-        >
-          <span className="text-black font-black text-xs">S</span>
-        </div>
-        <span className="font-black text-white text-base tracking-tight">Sermayem</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/favicon.svg" alt="S" className="h-6 w-6 object-contain" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/sermayem.svg" alt="Sermayem" className="h-4 object-contain" />
       </div>
 
       <motion.button

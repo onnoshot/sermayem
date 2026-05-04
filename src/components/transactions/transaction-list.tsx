@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useUIStore } from "@/lib/stores/ui-store"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
-import { formatCurrency, formatDate } from "@/lib/format"
+import { formatCurrencyCompact, formatDate } from "@/lib/format"
 import type { Transaction, Source, Currency } from "@/types/database"
 import { TrendingUp, TrendingDown, CheckCircle2, Pencil } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -75,7 +75,7 @@ export function TransactionList({ transactions, currency = "TRY", showEdit = tru
 
               {/* Text */}
               <div className="flex-1 min-w-0">
-                <p className="text-[15px] font-semibold text-white/90 truncate leading-tight">{title}</p>
+                <p className="text-[15px] font-semibold text-white/90 leading-snug" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{title}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   {tx.source && (
                     <span className="text-[11px] font-medium truncate max-w-[100px]" style={{ color: tx.source.color || "rgba(255,255,255,0.4)" }}>
@@ -88,13 +88,13 @@ export function TransactionList({ transactions, currency = "TRY", showEdit = tru
                 </div>
               </div>
 
-              {/* Amount */}
+              {/* Amount — compact in list view */}
               <span className={cn(
-                "text-[15px] font-bold tabular-nums font-mono flex-shrink-0",
+                "text-[14px] font-bold tabular-nums font-mono flex-shrink-0",
                 isIncome ? "text-green-400" : "text-red-400",
                 isPending && "opacity-55"
               )}>
-                {isIncome ? "+" : "−"}{formatCurrency(tx.amount, currency)}
+                {isIncome ? "+" : "−"}{formatCurrencyCompact(tx.amount, currency)}
               </span>
 
               {/* Actions */}

@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   title: { default: "Sermayem — Finansal Dashboard", template: "%s | Sermayem" },
   description: "Sermayeni ilk kez bu kadar sakin ve net görüyorsun.",
   keywords: ["finans", "gelir gider", "bütçe", "SaaS"],
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

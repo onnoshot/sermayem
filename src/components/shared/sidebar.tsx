@@ -71,14 +71,16 @@ export function Sidebar({ profile }: SidebarProps) {
     >
       {/* Header */}
       <div className={cn("flex items-center h-[68px] border-b border-white/[0.06] px-4 gap-3 flex-shrink-0", !sidebarOpen && "justify-center px-0")}>
-        <motion.div
-          className="h-9 w-9 rounded-[11px] flex items-center justify-center flex-shrink-0 overflow-hidden bg-white/[0.04]"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/favicon.svg" alt="Sermayem" className="h-6 w-6 object-contain" />
-        </motion.div>
+        {!sidebarOpen && (
+          <motion.div
+            className="h-9 w-9 rounded-[11px] flex items-center justify-center flex-shrink-0 overflow-hidden bg-white/[0.04]"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/favicon.svg" alt="Sermayem" className="h-6 w-6 object-contain" />
+          </motion.div>
+        )}
 
         <AnimatePresence>
           {sidebarOpen && (
@@ -90,7 +92,7 @@ export function Sidebar({ profile }: SidebarProps) {
               className="flex-1 overflow-hidden"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/sermayem.svg" alt="Sermayem" className="h-5 object-contain object-left" />
+              <img src="/sermayem.svg" alt="Sermayem" className="h-6 object-contain object-left" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -130,14 +132,14 @@ export function Sidebar({ profile }: SidebarProps) {
       <div className={cn("p-3 flex-shrink-0", !sidebarOpen && "px-2")}>
         <motion.button
           onClick={openAddTransaction}
-          whileHover={{ scale: 1.02, boxShadow: "0 0 32px rgba(234,179,8,0.45)" }}
+          whileHover={{ scale: 1.02, boxShadow: "0 0 32px rgba(229,0,1,0.45)" }}
           whileTap={{ scale: 0.97 }}
           className={cn(
-            "w-full flex items-center gap-2.5 rounded-[14px] font-bold text-black transition-all",
-            "shadow-[0_0_20px_rgba(234,179,8,0.25)]",
+            "w-full flex items-center gap-2.5 rounded-[14px] font-bold text-white transition-all",
+            "shadow-[0_0_20px_rgba(229,0,1,0.25)]",
             sidebarOpen ? "px-4 py-3 text-sm justify-start" : "h-11 w-11 justify-center mx-auto px-0"
           )}
-          style={{ background: "linear-gradient(135deg, #EAB308, #D97706)" }}
+          style={{ background: "linear-gradient(135deg, #E50001, #B91C1C)" }}
         >
           <Plus className="h-5 w-5 flex-shrink-0" strokeWidth={2.5} />
           {sidebarOpen && <span>İşlem Ekle</span>}
@@ -185,7 +187,7 @@ export function Sidebar({ profile }: SidebarProps) {
                 {active && (
                   <motion.div
                     layoutId="active-pill"
-                    className="absolute right-2 h-1.5 w-1.5 rounded-full bg-yellow-400"
+                    className="absolute right-2 h-1.5 w-1.5 rounded-full bg-[#E50001]"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -216,7 +218,7 @@ export function Sidebar({ profile }: SidebarProps) {
           "flex items-center gap-3 rounded-[12px] mt-1 p-2.5 bg-white/[0.04] border border-white/[0.07]",
           !sidebarOpen && "justify-center"
         )}>
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border border-yellow-500/20 flex items-center justify-center text-lg flex-shrink-0">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-red-600/15 to-red-500/15 border border-red-500/20 flex items-center justify-center text-lg flex-shrink-0">
             {profile?.avatar_emoji || "🎯"}
           </div>
           {sidebarOpen && (

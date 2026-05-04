@@ -21,18 +21,16 @@ export function MobileTopBar() {
         <Menu className="h-5 w-5" />
       </button>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/favicon.svg" alt="S" className="h-6 w-6 object-contain" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/sermayem.svg" alt="Sermayem" className="h-4 object-contain" />
+        <img src="/sermayem.svg" alt="Sermayem" className="h-5 object-contain" />
       </div>
 
       <motion.button
         onClick={openAddTransaction}
         whileTap={{ scale: 0.92 }}
-        className="h-9 w-9 rounded-xl flex items-center justify-center text-black shadow-[0_0_16px_rgba(234,179,8,0.3)]"
-        style={{ background: "linear-gradient(135deg, #EAB308, #D97706)" }}
+        className="h-9 w-9 rounded-xl flex items-center justify-center text-white shadow-[0_0_16px_rgba(229,0,1,0.3)]"
+        style={{ background: "linear-gradient(135deg, #E50001, #B91C1C)" }}
       >
         <Plus className="h-5 w-5" strokeWidth={2.5} />
       </motion.button>

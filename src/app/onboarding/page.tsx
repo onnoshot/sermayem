@@ -60,7 +60,7 @@ export default function OnboardingPage() {
         <div className="flex items-center gap-2 mb-8">
           {steps.map((s, i) => (
             <div key={s} className="flex items-center gap-2">
-              <div className={`h-1.5 rounded-full transition-all duration-500 ${i === 0 ? "w-8" : "w-8"} ${i <= step ? "bg-yellow-500" : "bg-white/10"}`} />
+              <div className={`h-1.5 rounded-full transition-all duration-500 ${i === 0 ? "w-8" : "w-8"} ${i <= step ? "bg-[#E50001]" : "bg-white/10"}`} />
             </div>
           ))}
           <span className="ml-auto text-xs text-white/40">{step + 1} / {steps.length}</span>
@@ -80,7 +80,7 @@ export default function OnboardingPage() {
                   <div className="grid grid-cols-6 gap-2">
                     {AVATARS.map((a) => (
                       <button key={a} onClick={() => setForm((f) => ({ ...f, avatar_emoji: a }))}
-                        className={`h-10 w-10 rounded-xl text-xl flex items-center justify-center transition-all ${form.avatar_emoji === a ? "bg-yellow-500/20 border border-yellow-500/50 scale-110" : "bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08]"}`}>
+                        className={`h-10 w-10 rounded-xl text-xl flex items-center justify-center transition-all ${form.avatar_emoji === a ? "bg-[#E50001]/15 border border-[#E50001]/50 scale-110" : "bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08]"}`}>
                         {a}
                       </button>
                     ))}
@@ -104,13 +104,13 @@ export default function OnboardingPage() {
                 <div className="space-y-2 mb-6">
                   {CURRENCIES.map((c) => (
                     <button key={c.code} onClick={() => setForm((f) => ({ ...f, currency: c.code }))}
-                      className={`w-full flex items-center gap-3 p-4 rounded-[16px] border transition-all text-left ${form.currency === c.code ? "border-yellow-500/50 bg-yellow-500/10" : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06]"}`}>
+                      className={`w-full flex items-center gap-3 p-4 rounded-[16px] border transition-all text-left ${form.currency === c.code ? "border-[#E50001]/50 bg-[#E50001]/10" : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06]"}`}>
                       <span className="text-2xl">{c.flag}</span>
                       <div className="flex-1">
                         <p className="text-sm font-medium text-white">{c.label}</p>
                         <p className="text-xs text-white/40">{c.code} · {c.symbol}</p>
                       </div>
-                      {form.currency === c.code && <div className="h-2 w-2 rounded-full bg-yellow-500" />}
+                      {form.currency === c.code && <div className="h-2 w-2 rounded-full bg-[#E50001]" />}
                     </button>
                   ))}
                 </div>

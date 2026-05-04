@@ -5,12 +5,12 @@ import { forwardRef } from "react"
 import { Loader2 } from "lucide-react"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:pointer-events-none disabled:opacity-40 active:scale-[0.97] select-none",
+  "inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E50001]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:pointer-events-none disabled:opacity-40 active:scale-[0.97] select-none",
   {
     variants: {
       variant: {
         primary:
-          "bg-yellow-500 text-black hover:bg-yellow-400 rounded-[12px] shadow-[0_0_24px_rgba(234,179,8,0.3)] hover:shadow-[0_0_36px_rgba(234,179,8,0.45)]",
+          "bg-[#E50001] text-white hover:bg-[#CC0001] rounded-[12px] shadow-[0_0_24px_rgba(229,0,1,0.3)] hover:shadow-[0_0_36px_rgba(229,0,1,0.45)]",
         ghost:
           "bg-white/[0.06] text-white/80 hover:bg-white/[0.1] hover:text-white border border-white/[0.08] rounded-[12px]",
         outline:
@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "bg-red-500/[0.1] text-red-400 border border-red-500/[0.2] hover:bg-red-500/[0.2] hover:border-red-500/[0.4] rounded-[12px]",
         income:
           "bg-green-500/[0.12] text-green-400 border border-green-500/[0.2] hover:bg-green-500/[0.2] rounded-[12px]",
-        link: "text-yellow-400 hover:text-yellow-300 underline-offset-4 hover:underline p-0 h-auto rounded-none",
+        link: "text-[#E50001] hover:text-red-400 underline-offset-4 hover:underline p-0 h-auto rounded-none",
       },
       size: {
         xs: "h-7 px-2.5 text-xs",

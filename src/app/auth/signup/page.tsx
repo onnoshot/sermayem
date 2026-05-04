@@ -74,7 +74,7 @@ export default function SignupPage() {
 
         <p className="text-center text-sm text-white/40 mt-6">
           Zaten hesabın var mı?{" "}
-          <Link href="/auth/login" className="text-yellow-400 hover:text-yellow-300 font-medium transition-colors">
+          <Link href="/auth/login" className="text-[#E50001] hover:text-red-400 font-medium transition-colors">
             Giriş yap
           </Link>
         </p>

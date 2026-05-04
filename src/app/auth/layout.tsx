@@ -1,7 +1,5 @@
 "use client"
 import { motion } from "framer-motion"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 
 const features = [
   { icon: "💰", title: "Gelir & Gider", desc: "Tüm hareketler tek ekranda" },
@@ -15,6 +13,12 @@ const stats = [
   { value: "∞", label: "işlem" },
 ]
 
+const mockTransactions = [
+  { emoji: "💼", name: "Maaş", amount: "+45.000", pos: true },
+  { emoji: "🏠", name: "Kira", amount: "−12.000", pos: false },
+  { emoji: "🛒", name: "Market", amount: "−2.340", pos: false },
+]
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#08080C] flex overflow-hidden relative">
@@ -23,90 +27,170 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <div className="absolute inset-0 bg-[#08080C]" />
         <motion.div
-          className="absolute -top-[25%] -left-[20%] h-[800px] w-[800px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(234,179,8,0.10), transparent 65%)" }}
-          animate={{ x: [0, 70, 0], y: [0, 40, 0] }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-[20%] -left-[15%] h-[900px] w-[900px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(229,0,1,0.07), transparent 65%)" }}
+          animate={{ x: [0, 60, 0], y: [0, 40, 0] }}
+          transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-[25%] -right-[20%] h-[700px] w-[700px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(217,119,6,0.12), transparent 65%)" }}
-          animate={{ x: [0, -60, 0], y: [0, -50, 0] }}
-          transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-[20%] -right-[15%] h-[800px] w-[800px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(185,28,28,0.08), transparent 65%)" }}
+          animate={{ x: [0, -50, 0], y: [0, -40, 0] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute top-[40%] left-[30%] h-[400px] w-[400px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(124,58,237,0.05), transparent 70%)" }}
+          className="absolute top-[35%] left-[25%] h-[500px] w-[500px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(124,58,237,0.04), transparent 70%)" }}
           animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
         />
         <div
-          className="absolute inset-0 opacity-[0.018]"
+          className="absolute inset-0 opacity-[0.015]"
           style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.9) 1px, transparent 1px)", backgroundSize: "32px 32px" }}
         />
       </div>
 
       {/* ── DESKTOP LEFT PANEL ── */}
       <motion.div
-        className="hidden lg:flex w-[500px] xl:w-[560px] flex-shrink-0 flex-col justify-between p-14 border-r border-white/[0.05] relative"
+        className="hidden lg:flex w-[520px] xl:w-[580px] flex-shrink-0 flex-col justify-between p-14 border-r border-white/[0.05] relative"
         initial={{ opacity: 0, x: -40 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="flex items-center gap-3">
-          <motion.div
-            className="h-10 w-10 rounded-[12px] flex items-center justify-center flex-shrink-0 bg-white/[0.06] overflow-hidden"
-            initial={{ scale: 0, rotate: -15 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 280, damping: 22, delay: 0.2 }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/favicon.svg" alt="S" className="h-7 w-7 object-contain" />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35, duration: 0.4 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/sermayem.svg" alt="Sermayem" className="h-5 object-contain" />
-          </motion.div>
-        </div>
+        {/* Logo — wordmark only (contains S icon already) */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/sermayem.svg" alt="Sermayem" className="h-7 object-contain" />
+        </motion.div>
 
+        {/* Middle content */}
         <div className="space-y-10">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
-            <h1 className="text-[2.8rem] xl:text-5xl font-black text-white leading-[1.12] tracking-tight">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
+            <h1 className="text-[2.8rem] xl:text-[3.2rem] font-black text-white leading-[1.08] tracking-tight">
               Sermayeni{" "}
-              <span style={{ background: "linear-gradient(135deg, #EAB308, #F59E0B)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>akıllıca</span>{" "}
+              <span style={{ background: "linear-gradient(135deg, #E50001, #FF3333)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>akıllıca</span>{" "}
               yönet.
             </h1>
-            <p className="text-[15px] text-white/45 mt-5 leading-relaxed">
-              Gelir, gider ve bekleyen ödemelerin tek bir panelde. Finansal özgürlüğe giden yolda rehberin.
+            <p className="text-[15px] text-white/40 mt-4 leading-relaxed">
+              Gelir, gider ve bekleyen ödemelerini tek bir panelde.<br />
+              Finansal özgürlüğe giden yolda rehberin.
             </p>
           </motion.div>
 
-          <div className="space-y-3">
-            {features.map((f, i) => (
-              <motion.div key={f.title} className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06]"
-                initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 + i * 0.09, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <div className="h-10 w-10 rounded-xl bg-white/[0.06] border border-white/[0.07] flex items-center justify-center text-lg flex-shrink-0">{f.icon}</div>
+          {/* Floating product preview */}
+          <motion.div
+            className="relative h-[290px]"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Main balance card */}
+            <motion.div
+              className="absolute top-0 left-0 right-10 p-5 rounded-[22px] border border-white/[0.09] z-10"
+              style={{
+                background: "linear-gradient(135deg, rgba(20,20,28,0.97), rgba(12,12,18,0.99))",
+                backdropFilter: "blur(40px)",
+                boxShadow: "0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+              }}
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="flex items-start justify-between mb-3">
                 <div>
-                  <p className="text-sm font-semibold text-white">{f.title}</p>
-                  <p className="text-xs text-white/40 mt-0.5">{f.desc}</p>
+                  <p className="text-[10px] text-white/30 uppercase tracking-[0.15em] mb-1.5">Toplam Bakiye</p>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-[2rem] font-black text-white leading-none">142.850</span>
+                    <span className="text-base font-semibold text-white/35">TL</span>
+                  </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+                <div
+                  className="h-10 w-10 rounded-[13px] flex items-center justify-center text-xl"
+                  style={{ background: "rgba(229,0,1,0.12)", border: "1px solid rgba(229,0,1,0.22)" }}
+                >
+                  💰
+                </div>
+              </div>
+              <div className="flex gap-5 mb-4">
+                {[
+                  { label: "Gelir", value: "+89.2K TL", color: "#4ADE80" },
+                  { label: "Gider", value: "−46.3K TL", color: "#F87171" },
+                ].map(item => (
+                  <div key={item.label} className="flex items-center gap-1.5">
+                    <div className="h-1.5 w-1.5 rounded-full" style={{ background: item.color }} />
+                    <span className="text-[11px] text-white/35">{item.label}</span>
+                    <span className="text-[11px] font-semibold" style={{ color: item.color }}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Mini bar chart */}
+              <div className="flex items-end gap-[3px] h-8">
+                {[35, 55, 42, 72, 50, 83, 62, 90, 68, 100].map((h, i) => (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-t-[3px]"
+                    style={{ height: `${h}%`, background: i >= 8 ? "#E50001" : "rgba(229,0,1,0.2)" }}
+                  />
+                ))}
+              </div>
+            </motion.div>
 
-          <motion.div className="grid grid-cols-3 gap-3" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.92, duration: 0.5 }}>
+            {/* Floating transaction mini-card */}
+            <motion.div
+              className="absolute bottom-0 right-0 w-[210px] p-4 rounded-[18px] border border-white/[0.07] z-20"
+              style={{
+                background: "rgba(10,10,16,0.97)",
+                backdropFilter: "blur(40px)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04)",
+              }}
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+            >
+              <p className="text-[10px] text-white/25 mb-2.5 uppercase tracking-wider">Son İşlemler</p>
+              <div className="space-y-2">
+                {mockTransactions.map((t) => (
+                  <div key={t.name} className="flex items-center gap-2.5">
+                    <div className="h-7 w-7 rounded-[9px] bg-white/[0.05] flex items-center justify-center text-sm flex-shrink-0">{t.emoji}</div>
+                    <span className="text-[12px] text-white/50 flex-1 truncate">{t.name}</span>
+                    <span
+                      className="text-[12px] font-semibold tabular-nums"
+                      style={{ color: t.pos ? "#4ADE80" : "#F87171" }}
+                    >
+                      {t.amount}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Floating pending badge */}
+            <motion.div
+              className="absolute -top-4 right-14 px-3 py-1.5 rounded-[10px] border border-purple-500/25 flex items-center gap-2 z-30"
+              style={{ background: "rgba(10,10,15,0.92)", backdropFilter: "blur(20px)" }}
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+            >
+              <div className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
+              <span className="text-[11px] font-medium text-purple-300/70">3 bekleyen ödeme</span>
+            </motion.div>
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div
+            className="grid grid-cols-3 gap-3"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.85, duration: 0.5 }}
+          >
             {stats.map((s) => (
               <div key={s.label} className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.05]">
-                <p className="text-2xl font-black text-yellow-400 leading-none">{s.value}</p>
+                <p className="text-2xl font-black leading-none" style={{ color: "#E50001" }}>{s.value}</p>
                 <p className="text-[11px] text-white/30 mt-1.5 text-center">{s.label}</p>
               </div>
             ))}
           </motion.div>
         </div>
 
-        <motion.p className="text-xs text-white/20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}>
+        <motion.p className="text-xs text-white/20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }}>
           © 2026 Sermayem. Tüm hakları saklıdır.
         </motion.p>
       </motion.div>
@@ -117,34 +201,27 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* ── MOBILE HERO (lg:hidden) ── */}
         <div className="lg:hidden flex flex-col px-5 pt-10 pb-2">
 
-          {/* Logo row */}
-          <motion.div className="flex items-center gap-2.5 mb-8"
-            initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
+          {/* Logo — wordmark only */}
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
-            <motion.div
-              className="h-9 w-9 rounded-[11px] flex items-center justify-center bg-white/[0.06] overflow-hidden"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/favicon.svg" alt="S" className="h-6 w-6 object-contain" />
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/sermayem.svg" alt="Sermayem" className="h-5 object-contain" />
-            </motion.div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/sermayem.svg" alt="Sermayem" className="h-6 object-contain" />
           </motion.div>
 
           {/* Headline */}
-          <motion.div className="mb-6"
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          <motion.div
+            className="mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
             <h1 className="text-[2rem] font-black text-white leading-[1.1] tracking-tight">
               Sermayeni{" "}
-              <span style={{ background: "linear-gradient(135deg, #EAB308, #F59E0B)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              <span style={{ background: "linear-gradient(135deg, #E50001, #FF3333)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 akıllıca
               </span>{" "}
               yönet.
@@ -154,15 +231,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </p>
           </motion.div>
 
-          {/* Feature cards — horizontal */}
+          {/* Feature cards — horizontal scroll */}
           <div className="flex gap-2.5 mb-6 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
             {features.map((f, i) => (
               <motion.div
                 key={f.title}
-                className="flex-shrink-0 w-[120px] p-3 rounded-[16px] border border-white/[0.08] bg-white/[0.04] backdrop-blur-sm"
+                className="flex-shrink-0 w-[118px] p-3 rounded-[16px] border border-white/[0.08] bg-white/[0.04] backdrop-blur-sm"
                 initial={{ opacity: 0, y: 20, scale: 0.92 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ delay: 0.28 + i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ delay: 0.25 + i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               >
                 <div className="text-2xl mb-2">{f.icon}</div>
                 <p className="text-[11px] font-semibold text-white/80 leading-tight">{f.title}</p>
@@ -172,13 +249,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Stats row */}
-          <motion.div className="grid grid-cols-3 gap-2 mb-7"
-            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55, duration: 0.5 }}
+          <motion.div
+            className="grid grid-cols-3 gap-2 mb-7"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
           >
             {stats.map((s) => (
               <div key={s.label} className="flex flex-col items-center justify-center py-3 rounded-[14px] bg-white/[0.04] border border-white/[0.07]">
-                <p className="text-xl font-black text-yellow-400 leading-none">{s.value}</p>
+                <p className="text-xl font-black leading-none" style={{ color: "#E50001" }}>{s.value}</p>
                 <p className="text-[10px] text-white/30 mt-1 text-center">{s.label}</p>
               </div>
             ))}

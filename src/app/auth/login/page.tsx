@@ -59,7 +59,7 @@ export default function LoginPage() {
           </div>
 
           <div className="flex justify-end">
-            <Link href="/auth/forgot-password" className="text-xs text-white/40 hover:text-yellow-400 transition-colors">
+            <Link href="/auth/forgot-password" className="text-xs text-white/40 hover:text-[#E50001] transition-colors">
               Şifremi unuttum
             </Link>
           </div>
@@ -71,7 +71,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-white/40 mt-6">
           Hesabın yok mu?{" "}
-          <Link href="/auth/signup" className="text-yellow-400 hover:text-yellow-300 font-medium transition-colors">
+          <Link href="/auth/signup" className="text-[#E50001] hover:text-red-400 font-medium transition-colors">
             Kayıt ol
           </Link>
         </p>

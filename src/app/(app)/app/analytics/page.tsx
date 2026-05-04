@@ -5,11 +5,7 @@ import { StaggerChildren, StaggerItem } from "@/components/motion/stagger-childr
 import { formatCurrency, formatMonthYear } from "@/lib/format"
 import type { Transaction, Source, Currency } from "@/types/database"
 import { BarChart3 } from "lucide-react"
-import dynamic from "next/dynamic"
-const AnalyticsCharts = dynamic(
-  () => import("@/components/dashboard/analytics-charts").then((m) => m.AnalyticsCharts),
-  { ssr: false, loading: () => <div className="h-[400px] rounded-[20px] bg-white/[0.04] animate-pulse" /> }
-)
+import { LazyAnalyticsCharts } from "@/components/dashboard/lazy-analytics-charts"
 import { subMonths, startOfMonth, endOfMonth, format } from "date-fns"
 
 export const metadata = { title: "Analiz" }
@@ -83,7 +79,7 @@ export default async function AnalyticsPage() {
       </StaggerItem>
 
       <StaggerItem>
-        <AnalyticsCharts monthlyData={monthlyData} transactions={txs} currency={currency} />
+        <LazyAnalyticsCharts monthlyData={monthlyData} transactions={txs} currency={currency} />
       </StaggerItem>
     </StaggerChildren>
   )

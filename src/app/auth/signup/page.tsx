@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
+import { GoogleButton } from "@/components/auth/google-button"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -51,9 +52,17 @@ export default function SignupPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 24 }}>
       <GlassSurface className="p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Hesap oluştur</h1>
-          <p className="text-sm text-white/50">Finansal yolculuğuna başla</p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Hesap olustur</h1>
+          <p className="text-sm text-white/50">Finansal yolculuguna basla</p>
+        </div>
+
+        <GoogleButton />
+
+        <div className="flex items-center gap-3 my-5">
+          <div className="flex-1 h-px bg-white/[0.07]" />
+          <span className="text-xs text-white/25">ya da e-posta ile</span>
+          <div className="flex-1 h-px bg-white/[0.07]" />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

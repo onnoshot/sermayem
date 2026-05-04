@@ -30,15 +30,17 @@ export const GlassSurface = forwardRef<HTMLDivElement, GlassSurfaceProps>(
         ref={ref}
         className={cn(
           "relative overflow-hidden rounded-[28px]",
-          "bg-white/[0.04] border border-white/[0.08]",
           "backdrop-saturate-[1.8]",
           blurMap[intensity],
           glowMap[glow],
-          interactive && "cursor-pointer transition-all duration-200 hover:bg-white/[0.07] hover:border-white/[0.16]",
+          interactive && "cursor-pointer transition-all duration-200",
           className
         )}
         style={{
-          boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)",
+          background: "var(--c-surface)",
+          border: "1px solid var(--c-border)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 var(--c-specular)",
+          transition: "background 0.3s ease, border-color 0.3s ease",
           ...style,
         }}
         {...props}

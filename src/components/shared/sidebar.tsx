@@ -67,7 +67,7 @@ export function Sidebar({ profile }: SidebarProps) {
       }
       transition={{ type: "spring", stiffness: 320, damping: 32 }}
       className="fixed left-0 top-0 bottom-0 z-40 flex flex-col border-r border-white/[0.06] overflow-hidden"
-      style={{ background: "rgba(8,8,12,0.96)", backdropFilter: "blur(40px)" }}
+      style={{ background: "var(--c-sidebar)", backdropFilter: "blur(40px)", transition: "background 0.3s ease" }}
     >
       {/* Header */}
       <div className={cn("flex items-center h-[68px] border-b border-white/[0.06] px-4 gap-3 flex-shrink-0", !sidebarOpen && "justify-center px-0")}>

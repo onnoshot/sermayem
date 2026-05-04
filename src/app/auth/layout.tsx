@@ -7,10 +7,17 @@ const mockTransactions = [
   { emoji: "🛒", name: "Market", amount: "-2.340", pos: false },
 ]
 
-const stats = [
+const MOBILE_FEATURES = [
+  { icon: "🔒", label: "256-bit güvenlik" },
+  { icon: "📊", label: "Anlık takip" },
+  { icon: "💡", label: "Tamamen ücretsiz" },
+  { icon: "🎯", label: "Net görünüm" },
+]
+
+const DESKTOP_STATS = [
   { value: "0 TL", label: "aylık ücret" },
-  { value: "100%", label: "gizlilik" },
-  { value: "sınırsız", label: "işlem" },
+  { value: "🔒", label: "256-bit şifreleme" },
+  { value: "∞", label: "sınırsız işlem" },
 ]
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -44,7 +51,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         />
       </div>
 
-      {/* DESKTOP LEFT PANEL */}
+      {/* ─────────── DESKTOP LEFT PANEL ─────────── */}
       <motion.div
         className="hidden lg:flex w-[520px] xl:w-[580px] flex-shrink-0 flex-col justify-between p-14 border-r border-white/[0.05] relative"
         initial={{ opacity: 0, x: -40 }}
@@ -59,14 +66,20 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="space-y-10">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
             <h1 className="text-[2.8rem] xl:text-[3.2rem] font-black text-white leading-[1.08] tracking-tight">
-              Sermayeni{" "}
-              <span style={{ background: "linear-gradient(135deg, #E50001, #FF3333)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>akıllıca</span>{" "}
-              yönet.
+              Paranın nereye gittiğini{" "}
+              <span style={{ background: "linear-gradient(135deg, #E50001, #FF3333)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                artık biliyorsun.
+              </span>
             </h1>
             <p className="text-[15px] text-white/40 mt-4 leading-relaxed">
-              Gelir, gider ve bekleyen ödemelerini tek bir panelde.<br />
-              Finansal özgürlüğe giden yolda rehberin.
+              Gelir, gider ve birikimini tek panelde yönet.<br />
+              Sermaye oluştur. Finansal özgürlüğüne ulaş.
             </p>
+            {/* Security badge */}
+            <div className="mt-5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-green-500/20 bg-green-500/[0.07]">
+              <div className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-xs text-green-400/80 font-medium">256-bit AES şifreleme ile korunuyor</span>
+            </div>
           </motion.div>
 
           {/* Floating product preview */}
@@ -167,7 +180,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.85, duration: 0.5 }}
           >
-            {stats.map((s) => (
+            {DESKTOP_STATS.map((s) => (
               <div key={s.label} className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.05]">
                 <p className="text-xl font-black leading-none" style={{ color: "#E50001" }}>{s.value}</p>
                 <p className="text-[11px] text-white/30 mt-1.5 text-center">{s.label}</p>
@@ -181,45 +194,94 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </motion.p>
       </motion.div>
 
-      {/* MOBILE + RIGHT PANEL */}
+      {/* ─────────── MOBILE + RIGHT PANEL ─────────── */}
       <div className="flex-1 flex flex-col min-h-screen">
 
         {/* MOBILE HEADER (lg:hidden) */}
-        <div className="lg:hidden flex-shrink-0 px-5 pt-8 pb-4">
+        <div className="lg:hidden flex-shrink-0 px-5 pt-8 pb-3">
+
+          {/* Logo */}
           <motion.div
-            initial={{ opacity: 0, y: -12 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45 }}
+            transition={{ duration: 0.4 }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/sermayem.svg" alt="Sermayem" className="h-6 object-contain mb-5" />
           </motion.div>
 
+          {/* Feature chips — animated stagger, horizontal scroll */}
+          <div className="flex gap-2 mb-5 overflow-x-auto pb-0.5" style={{ scrollbarWidth: "none" }}>
+            {MOBILE_FEATURES.map((f, i) => (
+              <motion.span
+                key={f.label}
+                initial={{ opacity: 0, y: 12, scale: 0.92 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.05 + i * 0.07, type: "spring", stiffness: 300, damping: 22 }}
+                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-white/[0.10] bg-white/[0.05] text-white/60 whitespace-nowrap"
+              >
+                <span className="text-sm">{f.icon}</span>
+                {f.label}
+              </motion.span>
+            ))}
+          </div>
+
+          {/* Headline */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ delay: 0.18, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h1 className="text-[1.75rem] font-black text-white leading-[1.1] tracking-tight mb-2">
-              Sermayeni{" "}
+            <h1 className="text-[1.85rem] font-black text-white leading-[1.08] tracking-tight mb-3">
+              Paranın nereye gittiğini{" "}
               <span style={{ background: "linear-gradient(135deg, #E50001, #FF3333)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                akıllıca
-              </span>{" "}
-              yönet.
+                artık biliyorsun.
+              </span>
             </h1>
-            <p className="text-sm text-white/40 leading-relaxed">
-              Gelir, gider ve bekleyen ödemelerini tek panelde takip et.
+            <p className="text-sm text-white/45 leading-relaxed">
+              Gelir, gider ve birikimini tek panelde yönet. Sermaye oluştur, hedeflerine ulaş.
             </p>
+          </motion.div>
+
+          {/* Mobile stats row */}
+          <motion.div
+            className="grid grid-cols-3 gap-2 mt-4"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+          >
+            {[
+              { v: "0 TL", l: "aylık ücret" },
+              { v: "🔒", l: "şifreleme" },
+              { v: "∞", l: "işlem" },
+            ].map((s) => (
+              <div key={s.l} className="flex flex-col items-center py-2.5 px-2 rounded-[14px] bg-white/[0.04] border border-white/[0.07]">
+                <p className="text-sm font-black leading-none" style={{ color: "#E50001" }}>{s.v}</p>
+                <p className="text-[10px] text-white/30 mt-1 text-center">{s.l}</p>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Divider */}
+          <motion.div
+            className="flex items-center gap-3 mt-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.38 }}
+          >
+            <div className="flex-1 h-px bg-white/[0.07]" />
+            <span className="text-[11px] text-white/25 font-medium">Hemen başla</span>
+            <div className="flex-1 h-px bg-white/[0.07]" />
           </motion.div>
         </div>
 
         {/* FORM */}
         <div className="flex-1 flex flex-col lg:items-center lg:justify-center lg:p-12">
           <motion.div
-            className="w-full lg:max-w-[400px] px-4 pb-8 lg:px-0 lg:pb-0"
-            initial={{ opacity: 0, y: 20 }}
+            className="w-full lg:max-w-[400px] px-4 pb-8 pt-3 lg:px-0 lg:pb-0 lg:pt-0"
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ delay: 0.25, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             {children}
           </motion.div>

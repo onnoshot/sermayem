@@ -29,6 +29,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tr" className={`${inter.variable} ${jetbrainsMono.variable} h-full`} suppressHydrationWarning>
+      <head>
+        {/* Prevent flash of wrong theme before hydration */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('sermayem-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}` }} />
+      </head>
       <body className="h-full antialiased">
         <Providers>{children}</Providers>
       </body>

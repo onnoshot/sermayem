@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
-import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw } from "lucide-react"
+import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, GripHorizontal } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Source, Transaction } from "@/types/database"
 import { format } from "date-fns"
@@ -59,7 +59,7 @@ export function TransactionModal() {
       }
     }
     if (transactionModalOpen) load()
-  }, [transactionModalOpen, editingTransactionId, reset])
+  }, [transactionModalOpen, editingTransactionId, reset, prefillDate])
 
   async function onSubmit(data: TransactionInput) {
     const supabase = createClient()
@@ -86,139 +86,194 @@ export function TransactionModal() {
   return (
     <AnimatePresence>
       {transactionModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50">
           {/* Backdrop */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-[8px]"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/55 backdrop-blur-[6px]"
             onClick={closeTransactionModal}
           />
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.92, y: 20 }}
-            transition={{ type: "spring", stiffness: 260, damping: 24 }}
-            className="relative w-full max-w-[480px] rounded-[28px] bg-[#0F0F18]/95 backdrop-blur-3xl border border-white/[0.1] shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
-            style={{ boxShadow: "0 24px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)" }}
-          >
-            {/* Top highlight */}
-            <div className="absolute inset-x-0 top-0 h-px rounded-t-[28px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-            <div className="p-6">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-white">{editingTransactionId ? "İşlemi Düzenle" : "İşlem Ekle"}</h2>
-                <button onClick={closeTransactionModal} className="h-7 w-7 rounded-full bg-white/[0.06] flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.1] transition-all">
-                  <X className="h-3.5 w-3.5" />
-                </button>
+          {/* Sheet container — bottom on mobile, centered on desktop */}
+          <div className="absolute inset-0 flex items-end sm:items-center sm:justify-center sm:p-4 pointer-events-none">
+            <motion.div
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", stiffness: 340, damping: 32 }}
+              className="pointer-events-auto w-full sm:max-w-[480px] sm:rounded-[28px] rounded-t-[28px] overflow-hidden"
+              style={{
+                background: "var(--c-modal)",
+                backdropFilter: "blur(40px)",
+                border: "1px solid var(--c-border)",
+                boxShadow: "0 -8px 48px rgba(0,0,0,0.5), inset 0 1px 0 var(--c-specular)",
+                maxHeight: "92dvh",
+              }}
+            >
+              {/* Drag indicator — mobile only */}
+              <div className="sm:hidden flex justify-center pt-3 pb-1">
+                <div className="h-1 w-10 rounded-full bg-white/20" />
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {/* Type + Status */}
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Type */}
-                  <div>
-                    <p className="text-xs text-white/40 uppercase tracking-wider mb-2">Tür</p>
-                    <div className="grid grid-cols-2 gap-1.5 p-1 rounded-[14px] bg-white/[0.04] border border-white/[0.06]">
-                      {(["income", "expense"] as const).map((t) => (
-                        <button key={t} type="button" onClick={() => setValue("type", t)}
-                          className={cn("flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-xs font-medium transition-all",
-                            watchType === t
-                              ? t === "income" ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-red-500/20 text-red-400 border border-red-500/30"
-                              : "text-white/40 hover:text-white/60")}>
-                          {t === "income" ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
-                          {t === "income" ? "Gelir" : "Gider"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Status */}
-                  <div>
-                    <p className="text-xs text-white/40 uppercase tracking-wider mb-2">Durum</p>
-                    <div className="grid grid-cols-2 gap-1.5 p-1 rounded-[14px] bg-white/[0.04] border border-white/[0.06]">
-                      {(["completed", "pending"] as const).map((s) => (
-                        <button key={s} type="button" onClick={() => setValue("status", s)}
-                          className={cn("flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-xs font-medium transition-all",
-                            watchStatus === s
-                              ? s === "completed" ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                              : "text-white/40 hover:text-white/60")}>
-                          {s === "completed" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
-                          {s === "completed" ? "Tamamlandı" : "Bekleyen"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Amount */}
-                <div>
-                  <p className="text-xs text-white/40 uppercase tracking-wider mb-2">Tutar</p>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-2xl font-mono">₺</span>
-                    <input
-                      {...register("amount", { valueAsNumber: true })}
-                      type="number" step="0.01" placeholder="0,00"
-                      className="w-full pl-10 pr-4 py-4 rounded-[14px] bg-white/[0.05] border border-white/[0.08] text-white text-3xl font-bold font-mono placeholder:text-white/15 focus:outline-none focus:border-yellow-400/50 focus:bg-white/[0.07] transition-all"
-                    />
-                  </div>
-                  {errors.amount && <p className="text-xs text-red-400 mt-1">{errors.amount.message}</p>}
-                </div>
-
-                {/* Source */}
-                {filteredSources.length > 0 && (
-                  <div>
-                    <p className="text-xs text-white/40 uppercase tracking-wider mb-2">Kaynak</p>
-                    <Controller name="source_id" control={control} render={({ field }) => (
-                      <div className="grid grid-cols-4 gap-2">
-                        {filteredSources.map((src) => (
-                          <button key={src.id} type="button"
-                            onClick={() => field.onChange(field.value === src.id ? null : src.id)}
-                            className={cn("flex flex-col items-center gap-1 p-2.5 rounded-[12px] border text-center transition-all",
-                              field.value === src.id
-                                ? "border-yellow-500/40 bg-yellow-500/10" : "border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.06]")}>
-                            <span className="text-xl">{src.emoji}</span>
-                            <span className="text-[10px] text-white/50 leading-tight line-clamp-1">{src.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )} />
-                  </div>
-                )}
-
-                {/* Description + Date */}
-                <div className="grid grid-cols-2 gap-3">
-                  <Input label="Açıklama" placeholder="Açıklama..." {...register("description")} />
-                  <Input label={watchStatus === "pending" ? "Vade Tarihi" : "Tarih"} type="date"
-                    {...register(watchStatus === "pending" ? "due_on" : "occurred_on")} />
-                </div>
-
-                {/* Recurring */}
-                <div className="flex items-center gap-3 p-3 rounded-[12px] bg-white/[0.03] border border-white/[0.06]">
-                  <Controller name="is_recurring" control={control} render={({ field }) => (
-                    <button type="button" onClick={() => field.onChange(!field.value)}
-                      className={cn("h-5 w-9 rounded-full transition-all relative", field.value ? "bg-yellow-500" : "bg-white/10")}>
-                      <span className={cn("absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all", field.value ? "left-4" : "left-0.5")} />
+              <div className="overflow-y-auto" style={{ maxHeight: "calc(92dvh - 20px)" }}>
+                <div className="p-5 sm:p-6">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="text-lg font-bold text-white">
+                      {editingTransactionId ? "İşlemi Düzenle" : "İşlem Ekle"}
+                    </h2>
+                    <button
+                      onClick={closeTransactionModal}
+                      className="h-8 w-8 rounded-full bg-white/[0.07] flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.12] transition-all"
+                    >
+                      <X className="h-3.5 w-3.5" />
                     </button>
-                  )} />
-                  <div className="flex items-center gap-1.5 text-sm text-white/60">
-                    <RefreshCw className="h-3.5 w-3.5" /> Yinelenen işlem
                   </div>
-                  {watchRecurring && (
-                    <Controller name="recurrence_rule" control={control} render={({ field }) => (
-                      <select {...field} value={field.value ?? ""} className="ml-auto text-xs bg-white/[0.06] border border-white/[0.08] rounded-[8px] px-2 py-1 text-white/70 focus:outline-none">
-                        <option value="weekly">Haftalık</option>
-                        <option value="monthly">Aylık</option>
-                        <option value="yearly">Yıllık</option>
-                      </select>
-                    )} />
-                  )}
-                </div>
 
-                {/* Submit */}
-                <Button type="submit" variant="primary" size="lg" loading={isSubmitting} className="w-full">
-                  {editingTransactionId ? "Güncelle" : "Kaydet"} ✓
-                </Button>
-              </form>
-            </div>
-          </motion.div>
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+                    {/* Type + Status — stack vertically on mobile */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Type */}
+                      <div>
+                        <p className="text-[11px] text-white/40 uppercase tracking-wider mb-2">Tür</p>
+                        <div className="grid grid-cols-2 gap-1.5 p-1 rounded-[14px] bg-white/[0.04] border border-white/[0.06]">
+                          {(["income", "expense"] as const).map((t) => (
+                            <button key={t} type="button" onClick={() => setValue("type", t)}
+                              className={cn(
+                                "flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-xs font-semibold transition-all",
+                                watchType === t
+                                  ? t === "income"
+                                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                    : "bg-red-500/20 text-red-400 border border-red-500/30"
+                                  : "text-white/40 hover:text-white/60"
+                              )}>
+                              {t === "income"
+                                ? <TrendingUp className="h-3.5 w-3.5 flex-shrink-0" />
+                                : <TrendingDown className="h-3.5 w-3.5 flex-shrink-0" />}
+                              {t === "income" ? "Gelir" : "Gider"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Status */}
+                      <div>
+                        <p className="text-[11px] text-white/40 uppercase tracking-wider mb-2">Durum</p>
+                        <div className="grid grid-cols-2 gap-1.5 p-1 rounded-[14px] bg-white/[0.04] border border-white/[0.06]">
+                          {(["completed", "pending"] as const).map((s) => (
+                            <button key={s} type="button" onClick={() => setValue("status", s)}
+                              className={cn(
+                                "flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-[11px] font-semibold transition-all leading-none",
+                                watchStatus === s
+                                  ? s === "completed"
+                                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                    : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                                  : "text-white/40 hover:text-white/60"
+                              )}>
+                              {s === "completed"
+                                ? <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0" />
+                                : <Clock className="h-3.5 w-3.5 flex-shrink-0" />}
+                              {s === "completed" ? "Tamamlandı" : "Bekleyen"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Amount */}
+                    <div>
+                      <p className="text-[11px] text-white/40 uppercase tracking-wider mb-2">Tutar</p>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-xl font-mono">₺</span>
+                        <input
+                          {...register("amount", { valueAsNumber: true })}
+                          type="number" step="0.01" placeholder="0,00"
+                          className="w-full pl-9 pr-4 py-4 rounded-[14px] bg-white/[0.05] border border-white/[0.08] text-white text-2xl sm:text-3xl font-bold font-mono placeholder:text-white/15 focus:outline-none focus:border-[#E50001]/40 focus:bg-white/[0.07] transition-all"
+                        />
+                      </div>
+                      {errors.amount && <p className="text-xs text-red-400 mt-1">{errors.amount.message}</p>}
+                    </div>
+
+                    {/* Source */}
+                    {filteredSources.length > 0 && (
+                      <div>
+                        <p className="text-[11px] text-white/40 uppercase tracking-wider mb-2">Kaynak</p>
+                        <Controller name="source_id" control={control} render={({ field }) => (
+                          <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                            {filteredSources.map((src) => (
+                              <button key={src.id} type="button"
+                                onClick={() => field.onChange(field.value === src.id ? null : src.id)}
+                                className={cn(
+                                  "flex flex-col items-center gap-1 p-2.5 rounded-[12px] border text-center transition-all",
+                                  field.value === src.id
+                                    ? "border-[#E50001]/40 bg-[#E50001]/10"
+                                    : "border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.06]"
+                                )}>
+                                <span className="text-lg sm:text-xl">{src.emoji}</span>
+                                <span className="text-[10px] text-white/50 leading-tight line-clamp-1">{src.name}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )} />
+                      </div>
+                    )}
+
+                    {/* Description + Date */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input label="Açıklama" placeholder="Açıklama..." {...register("description")} />
+                      <Input
+                        label={watchStatus === "pending" ? "Vade Tarihi" : "Tarih"}
+                        type="date"
+                        {...register(watchStatus === "pending" ? "due_on" : "occurred_on")}
+                      />
+                    </div>
+
+                    {/* Recurring */}
+                    <div className="flex items-center gap-3 p-3 rounded-[12px] bg-white/[0.03] border border-white/[0.06]">
+                      <Controller name="is_recurring" control={control} render={({ field }) => (
+                        <button
+                          type="button"
+                          onClick={() => field.onChange(!field.value)}
+                          className="relative h-5 w-9 rounded-full transition-all flex-shrink-0"
+                          style={{ background: field.value ? "#E50001" : "rgba(255,255,255,0.12)" }}
+                        >
+                          <span className={cn(
+                            "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all",
+                            field.value ? "left-4" : "left-0.5"
+                          )} />
+                        </button>
+                      )} />
+                      <div className="flex items-center gap-1.5 text-sm text-white/60 min-w-0">
+                        <RefreshCw className="h-3.5 w-3.5 flex-shrink-0" />
+                        <span className="truncate">Yinelenen işlem</span>
+                      </div>
+                      {watchRecurring && (
+                        <Controller name="recurrence_rule" control={control} render={({ field }) => (
+                          <select
+                            {...field}
+                            value={field.value ?? ""}
+                            className="ml-auto text-xs bg-white/[0.06] border border-white/[0.08] rounded-[8px] px-2 py-1 text-white/70 focus:outline-none flex-shrink-0"
+                          >
+                            <option value="weekly">Haftalık</option>
+                            <option value="monthly">Aylık</option>
+                            <option value="yearly">Yıllık</option>
+                          </select>
+                        )} />
+                      )}
+                    </div>
+
+                    {/* Submit */}
+                    <Button type="submit" variant="primary" size="lg" loading={isSubmitting} className="w-full">
+                      {editingTransactionId ? "Güncelle" : "Kaydet"} ✓
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       )}
     </AnimatePresence>

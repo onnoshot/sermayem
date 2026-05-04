@@ -5,7 +5,11 @@ import { StaggerChildren, StaggerItem } from "@/components/motion/stagger-childr
 import { formatCurrency, formatMonthYear } from "@/lib/format"
 import type { Transaction, Source, Currency } from "@/types/database"
 import { BarChart3 } from "lucide-react"
-import { AnalyticsCharts } from "@/components/dashboard/analytics-charts"
+import dynamic from "next/dynamic"
+const AnalyticsCharts = dynamic(
+  () => import("@/components/dashboard/analytics-charts").then((m) => m.AnalyticsCharts),
+  { ssr: false, loading: () => <div className="h-[400px] rounded-[20px] bg-white/[0.04] animate-pulse" /> }
+)
 import { subMonths, startOfMonth, endOfMonth, format } from "date-fns"
 
 export const metadata = { title: "Analiz" }
@@ -61,16 +65,16 @@ export default async function AnalyticsPage() {
       </StaggerItem>
 
       <StaggerItem>
-        <div className="grid grid-cols-4 gap-3 mb-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
           {[
             { label: "Bu Ay Gelir", value: curIncome, color: "text-green-400" },
             { label: "Bu Ay Gider", value: curExpense, color: "text-red-400" },
             { label: "Net", value: curIncome - curExpense, color: curIncome >= curExpense ? "text-green-400" : "text-red-400" },
             { label: "Tasarruf Oranı", value: null, pct: savingsRate, color: savingsRate >= 20 ? "text-green-400" : savingsRate >= 0 ? "text-yellow-400" : "text-red-400" },
           ].map(({ label, value, pct, color }) => (
-            <GlassSurface key={label} className="p-4">
-              <p className="text-xs text-white/40 mb-1">{label}</p>
-              <p className={`text-lg font-bold tabular-nums font-mono ${color}`}>
+            <GlassSurface key={label} className="p-3 sm:p-4">
+              <p className="text-[10px] sm:text-xs text-white/40 mb-1">{label}</p>
+              <p className={`text-base sm:text-lg font-bold tabular-nums font-mono ${color}`}>
                 {pct !== undefined ? `%${pct.toFixed(1)}` : formatCurrency(value || 0, currency)}
               </p>
             </GlassSurface>

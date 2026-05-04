@@ -8,8 +8,7 @@ import type { Source, Transaction } from "@/types/database"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { BalanceHero } from "@/components/dashboard/balance-hero"
-import { SourcesDonut } from "@/components/dashboard/sources-donut"
-import { TrendChart } from "@/components/dashboard/trend-chart"
+import { ChartsSection } from "@/components/dashboard/charts-section"
 import { KpiCard } from "@/components/dashboard/kpi-card"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 
@@ -131,16 +130,9 @@ export default async function DashboardPage() {
         </div>
       </StaggerItem>
 
-      {/* Charts Row */}
+      {/* Charts Row — lazy loaded */}
       <StaggerItem>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2">
-            <TrendChart transactions={txs} currency={currency} />
-          </div>
-          <div>
-            <SourcesDonut transactions={completed} sources={sources || []} currency={currency} />
-          </div>
-        </div>
+        <ChartsSection transactions={txs} completed={completed} sources={sources || []} currency={currency} />
       </StaggerItem>
 
       {/* Bottom Row */}

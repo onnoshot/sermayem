@@ -16,7 +16,7 @@ import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 
 export function TransactionModal() {
-  const { transactionModalOpen, editingTransactionId, closeTransactionModal } = useUIStore()
+  const { transactionModalOpen, editingTransactionId, prefillDate, closeTransactionModal } = useUIStore()
   const qc = useQueryClient()
   const [sources, setSources] = useState<Source[]>([])
   const [editData, setEditData] = useState<Transaction | null>(null)
@@ -47,7 +47,15 @@ export function TransactionModal() {
         }
       } else {
         setEditData(null)
-        reset({ type: "income", status: "completed", currency: "TRY", is_recurring: false, occurred_on: format(new Date(), "yyyy-MM-dd"), source_id: null })
+        reset({
+          type: "income",
+          status: prefillDate ? "pending" : "completed",
+          currency: "TRY",
+          is_recurring: false,
+          occurred_on: prefillDate || format(new Date(), "yyyy-MM-dd"),
+          due_on: prefillDate || undefined,
+          source_id: null,
+        })
       }
     }
     if (transactionModalOpen) load()

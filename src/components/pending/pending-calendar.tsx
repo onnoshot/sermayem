@@ -58,7 +58,7 @@ export function PendingCalendar({ transactions, currency }: Props) {
   async function markDone(tx: Transaction) {
     const supabase = createClient()
     await supabase.from("transactions").update({ status: "completed", occurred_on: new Date().toISOString().split("T")[0] }).eq("id", tx.id)
-    toast.success("Tamamlandi")
+    toast.success("Tamamlandı")
     router.refresh()
   }
 
@@ -168,7 +168,7 @@ export function PendingCalendar({ transactions, currency }: Props) {
           onClick={() => { setCurrentDate(new Date()); setSelectedDay(null) }}
           className="text-xs text-purple-400/60 hover:text-purple-400 transition-colors"
         >
-          Bugune don
+          Bugüne dön
         </button>
       )}
 
@@ -267,7 +267,7 @@ export function PendingCalendar({ transactions, currency }: Props) {
 
       {/* Add hint */}
       <p className="text-center text-[11px] text-white/20">
-        Bos bir gune tiklayarak yeni islem ekleyebilirsin
+        Boş bir güne tıklayarak yeni işlem ekleyebilirsin
       </p>
     </div>
   )

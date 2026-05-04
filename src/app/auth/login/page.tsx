@@ -38,8 +38,8 @@ export default function LoginPage() {
     <div>
       <GlassSurface className="p-6 sm:p-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Tekrar hos geldin</h1>
-          <p className="text-sm text-white/50">Sermayem hesabina giris yap</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Tekrar hoş geldin</h1>
+          <p className="text-sm text-white/50">Sermayem hesabına giriş yap</p>
         </div>
 
         <GoogleButton />

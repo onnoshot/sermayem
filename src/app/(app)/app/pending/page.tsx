@@ -38,7 +38,7 @@ export default async function PendingPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white tracking-tight">Bekleyenler</h1>
-            <p className="text-sm text-white/40">{pendingTxs.length} bekleyen islem</p>
+            <p className="text-sm text-white/40">{pendingTxs.length} bekleyen işlem</p>
           </div>
         </div>
       </StaggerItem>
@@ -54,7 +54,7 @@ export default async function PendingPage() {
             <p className="text-base sm:text-lg font-bold text-green-400 tabular-nums font-mono truncate">
               {formatCurrencyCompact(totalIn, currency)}
             </p>
-            <p className="text-[10px] text-white/30 mt-0.5">{pendingIncome.length} islem</p>
+            <p className="text-[10px] text-white/30 mt-0.5">{pendingIncome.length} işlem</p>
           </GlassSurface>
 
           <GlassSurface className="p-3 sm:p-4">
@@ -65,7 +65,7 @@ export default async function PendingPage() {
             <p className="text-base sm:text-lg font-bold text-red-400 tabular-nums font-mono truncate">
               {formatCurrencyCompact(totalOut, currency)}
             </p>
-            <p className="text-[10px] text-white/30 mt-0.5">{pendingExpense.length} islem</p>
+            <p className="text-[10px] text-white/30 mt-0.5">{pendingExpense.length} işlem</p>
           </GlassSurface>
 
           <GlassSurface className="p-3 sm:p-4">

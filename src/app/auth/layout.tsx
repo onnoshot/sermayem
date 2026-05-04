@@ -2,15 +2,15 @@
 import { motion } from "framer-motion"
 
 const mockTransactions = [
-  { emoji: "💼", name: "Maas", amount: "+45.000", pos: true },
+  { emoji: "💼", name: "Maaş", amount: "+45.000", pos: true },
   { emoji: "🏠", name: "Kira", amount: "-12.000", pos: false },
   { emoji: "🛒", name: "Market", amount: "-2.340", pos: false },
 ]
 
 const stats = [
-  { value: "0 TL", label: "aylik ucret" },
+  { value: "0 TL", label: "aylık ücret" },
   { value: "100%", label: "gizlilik" },
-  { value: "sinirsiz", label: "islem" },
+  { value: "sınırsız", label: "işlem" },
 ]
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -60,12 +60,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
             <h1 className="text-[2.8rem] xl:text-[3.2rem] font-black text-white leading-[1.08] tracking-tight">
               Sermayeni{" "}
-              <span style={{ background: "linear-gradient(135deg, #E50001, #FF3333)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>akillica</span>{" "}
-              yonet.
+              <span style={{ background: "linear-gradient(135deg, #E50001, #FF3333)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>akıllıca</span>{" "}
+              yönet.
             </h1>
             <p className="text-[15px] text-white/40 mt-4 leading-relaxed">
-              Gelir, gider ve bekleyen odemelerini tek bir panelde.<br />
-              Finansal ozgurluge giden yolda rehberin.
+              Gelir, gider ve bekleyen ödemelerini tek bir panelde.<br />
+              Finansal özgürlüğe giden yolda rehberin.
             </p>
           </motion.div>
 
@@ -136,7 +136,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             >
-              <p className="text-[10px] text-white/25 mb-2.5 uppercase tracking-wider">Son Islemler</p>
+              <p className="text-[10px] text-white/25 mb-2.5 uppercase tracking-wider">Son İşlemler</p>
               <div className="space-y-2">
                 {mockTransactions.map((t) => (
                   <div key={t.name} className="flex items-center gap-2.5">
@@ -156,7 +156,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
             >
               <div className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
-              <span className="text-[11px] font-medium text-purple-300/70">3 bekleyen odeme</span>
+              <span className="text-[11px] font-medium text-purple-300/70">3 bekleyen ödeme</span>
             </motion.div>
           </motion.div>
 
@@ -177,7 +177,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <motion.p className="text-xs text-white/20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }}>
-          2026 Sermayem. Tum haklari saklidir.
+          2026 Sermayem. Tüm hakları saklıdır.
         </motion.p>
       </motion.div>
 
@@ -203,12 +203,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <h1 className="text-[1.75rem] font-black text-white leading-[1.1] tracking-tight mb-2">
               Sermayeni{" "}
               <span style={{ background: "linear-gradient(135deg, #E50001, #FF3333)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                akillica
+                akıllıca
               </span>{" "}
-              yonet.
+              yönet.
             </h1>
             <p className="text-sm text-white/40 leading-relaxed">
-              Gelir, gider ve bekleyen odemelerini tek panelde takip et.
+              Gelir, gider ve bekleyen ödemelerini tek panelde takip et.
             </p>
           </motion.div>
         </div>

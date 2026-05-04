@@ -53,8 +53,8 @@ export default function SignupPage() {
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 260, damping: 24 }}>
       <GlassSurface className="p-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Hesap olustur</h1>
-          <p className="text-sm text-white/50">Finansal yolculuguna basla</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight mb-1">Hesap oluştur</h1>
+          <p className="text-sm text-white/50">Finansal yolculuğuna başla</p>
         </div>
 
         <GoogleButton />

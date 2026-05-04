@@ -13,18 +13,18 @@ import { ChevronRight } from "lucide-react"
 const AVATARS = ["🎯","📸","🦁","🔥","⚡","🌊","💎","🚀","🎬","🏆","🦊","✨"]
 const CURRENCIES = [
   { code: "TRY", label: "Türk Lirası", symbol: "₺", flag: "🇹🇷" },
-  { code: "USD", label: "Amerikan Dolari", symbol: "$", flag: "🇺🇸" },
+  { code: "USD", label: "Amerikan Doları", symbol: "$", flag: "🇺🇸" },
   { code: "EUR", label: "Euro", symbol: "€", flag: "🇪🇺" },
-  { code: "GBP", label: "Ingiliz Sterlini", symbol: "£", flag: "🇬🇧" },
+  { code: "GBP", label: "İngiliz Sterlini", symbol: "£", flag: "🇬🇧" },
 ] as const
 
 const GENDERS = [
   { value: "erkek", label: "Erkek" },
-  { value: "kadin", label: "Kadin" },
+  { value: "kadin", label: "Kadın" },
   { value: "belirtmek_istemiyorum", label: "Belirtmek istemiyorum" },
 ] as const
 
-const steps = ["Hos geldin", "Hakkinda", "Para birimi", "Hedefler"]
+const steps = ["Hoş geldin", "Hakkında", "Para birimi", "Hedefler"]
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -85,11 +85,11 @@ export default function OnboardingPage() {
               <GlassSurface className="p-8">
                 <div className="text-center mb-6">
                   <div className="text-5xl mb-3">{form.avatar_emoji}</div>
-                  <h1 className="text-2xl font-bold text-white mb-1">Hos geldin!</h1>
-                  <p className="text-sm text-white/50">Seni taniyalim</p>
+                  <h1 className="text-2xl font-bold text-white mb-1">Hoş geldin!</h1>
+                  <p className="text-sm text-white/50">Seni tanıyalım</p>
                 </div>
                 <div className="mb-5">
-                  <p className="text-xs text-white/50 uppercase tracking-wider mb-3">Avatar Sec</p>
+                  <p className="text-xs text-white/50 uppercase tracking-wider mb-3">Avatar Seç</p>
                   <div className="grid grid-cols-6 gap-2">
                     {AVATARS.map((a) => (
                       <button key={a} onClick={() => setForm((f) => ({ ...f, avatar_emoji: a }))}
@@ -99,7 +99,7 @@ export default function OnboardingPage() {
                     ))}
                   </div>
                 </div>
-                <Input label="Adin" placeholder="Onur" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} />
+                <Input label="Adın" placeholder="Onur" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} />
                 <Button variant="primary" size="lg" className="w-full mt-6" onClick={() => setStep(1)}>
                   Devam <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -112,8 +112,8 @@ export default function OnboardingPage() {
             <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ type: "spring", stiffness: 260, damping: 24 }}>
               <GlassSurface className="p-8">
                 <div className="mb-6">
-                  <h1 className="text-2xl font-bold text-white mb-1">Hakkinda</h1>
-                  <p className="text-sm text-white/50">Istersen atlayabilirsin</p>
+                  <h1 className="text-2xl font-bold text-white mb-1">Hakkında</h1>
+                  <p className="text-sm text-white/50">İstersen atlayabilirsin</p>
                 </div>
                 <div className="space-y-5">
                   {/* Cinsiyet */}
@@ -130,10 +130,10 @@ export default function OnboardingPage() {
                     </div>
                   </div>
 
-                  {/* Yas + Sehir */}
+                  {/* Yaş + Şehir */}
                   <div className="grid grid-cols-2 gap-3">
                     <Input
-                      label="Yas"
+                      label="Yaş"
                       type="number"
                       placeholder="28"
                       min="1"
@@ -142,8 +142,8 @@ export default function OnboardingPage() {
                       onChange={(e) => setForm((f) => ({ ...f, age: e.target.value }))}
                     />
                     <Input
-                      label="Sehir"
-                      placeholder="Istanbul"
+                      label="Şehir"
+                      placeholder="İstanbul"
                       value={form.city}
                       onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
                     />
@@ -157,7 +157,7 @@ export default function OnboardingPage() {
                   </Button>
                 </div>
                 <button onClick={() => setStep(2)} className="w-full text-center text-xs text-white/30 hover:text-white/50 mt-3 transition-colors">
-                  Simdilik atla
+                  Şimdilik atla
                 </button>
               </GlassSurface>
             </motion.div>
@@ -199,25 +199,25 @@ export default function OnboardingPage() {
             <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ type: "spring", stiffness: 260, damping: 24 }}>
               <GlassSurface className="p-8">
                 <div className="mb-6">
-                  <h1 className="text-2xl font-bold text-white mb-1">Aylik hedefler</h1>
-                  <p className="text-sm text-white/50">Istersen atla, sonra da ayarlayabilirsin.</p>
+                  <h1 className="text-2xl font-bold text-white mb-1">Aylık hedefler</h1>
+                  <p className="text-sm text-white/50">İstersen atla, sonra da ayarlayabilirsin.</p>
                 </div>
                 <div className="space-y-4 mb-6">
-                  <Input label="Aylik Gelir Hedefi" type="number" placeholder="50000" value={form.monthly_income_goal}
+                  <Input label="Aylık Gelir Hedefi" type="number" placeholder="50000" value={form.monthly_income_goal}
                     onChange={(e) => setForm((f) => ({ ...f, monthly_income_goal: e.target.value }))}
                     hint="Bu ay ne kadar kazanmak istiyorsun?" />
-                  <Input label="Aylik Tasarruf Hedefi" type="number" placeholder="10000" value={form.monthly_savings_goal}
+                  <Input label="Aylık Tasarruf Hedefi" type="number" placeholder="10000" value={form.monthly_savings_goal}
                     onChange={(e) => setForm((f) => ({ ...f, monthly_savings_goal: e.target.value }))}
                     hint="Bu ay ne kadar biriktirmek istiyorsun?" />
                 </div>
                 <div className="flex gap-3">
                   <Button variant="ghost" size="lg" className="flex-1" onClick={() => setStep(2)}>Geri</Button>
                   <Button variant="primary" size="lg" className="flex-1" loading={saving} onClick={finish}>
-                    Baslayalim
+                    Başlayalım
                   </Button>
                 </div>
                 <button onClick={finish} className="w-full text-center text-xs text-white/30 hover:text-white/50 mt-3 transition-colors">
-                  Simdilik atla
+                  Şimdilik atla
                 </button>
               </GlassSurface>
             </motion.div>

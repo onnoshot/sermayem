@@ -34,13 +34,11 @@ export default async function AdminPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
-  // Get email from auth
   const { data: { user: authUser } } = await supabase.auth.getUser()
   if (authUser?.email !== ADMIN_EMAIL) redirect("/app")
 
   const admin = createAdminClient()
 
-  // Fetch all data in parallel
   const [
     { data: { users: authUsers } },
     { data: profiles },
@@ -67,7 +65,6 @@ export default async function AdminPage() {
 
   const totalVolume = transactions?.reduce((a, t) => a + Number(t.amount), 0) || 0
 
-  // Build per-user stats
   const userMap = new Map<string, {
     email: string
     created_at: string
@@ -110,7 +107,7 @@ export default async function AdminPage() {
 
   const genderLabels: Record<string, string> = {
     erkek: "Erkek",
-    kadin: "Kadin",
+    kadin: "Kadın",
     belirtmek_istemiyorum: "Belirtmedi",
   }
 
@@ -125,29 +122,29 @@ export default async function AdminPage() {
           </div>
           <div>
             <h1 className="text-2xl font-black text-white">Admin Panel</h1>
-            <p className="text-sm text-white/40">Sermayem kullanici verileri</p>
+            <p className="text-sm text-white/40">Sermayem kullanıcı verileri</p>
           </div>
         </div>
 
         {/* Stats row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-          <StatCard icon={Users} label="Toplam Kullanici" value={totalUsers} sub={`+${usersLastMonth} gecen ay`} color="#E50001" />
-          <StatCard icon={Calendar} label="Bu Ay Kayit" value={usersThisMonth} sub="yeni kullanici" color="#8B5CF6" />
-          <StatCard icon={Activity} label="Aktif Kullanici" value={activeUsers} sub="islem yapti" color="#22C55E" />
-          <StatCard icon={TrendingUp} label="Toplam Hacim" value={formatCurrencyCompact(totalVolume, "TRY")} sub="tum islemler" color="#3B82F6" />
+          <StatCard icon={Users} label="Toplam Kullanıcı" value={totalUsers} sub={`+${usersLastMonth} geçen ay`} color="#E50001" />
+          <StatCard icon={Calendar} label="Bu Ay Kayıt" value={usersThisMonth} sub="yeni kullanıcı" color="#8B5CF6" />
+          <StatCard icon={Activity} label="Aktif Kullanıcı" value={activeUsers} sub="işlem yaptı" color="#22C55E" />
+          <StatCard icon={TrendingUp} label="Toplam Hacim" value={formatCurrencyCompact(totalVolume, "TRY")} sub="tüm işlemler" color="#3B82F6" />
         </div>
 
         {/* User table */}
         <div className="rounded-[20px] border border-white/[0.07] bg-white/[0.02] overflow-hidden">
           <div className="px-6 py-4 border-b border-white/[0.06]">
-            <h2 className="text-sm font-semibold text-white/80">Kullanicilar ({totalUsers})</h2>
+            <h2 className="text-sm font-semibold text-white/80">Kullanıcılar ({totalUsers})</h2>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.05]">
-                  {["Kullanici", "E-posta", "Yas", "Cinsiyet", "Sehir", "Para Birimi", "Islem", "Hacim", "Kayit Tarihi"].map(h => (
+                  {["Kullanıcı", "E-posta", "Yaş", "Cinsiyet", "Şehir", "Para Birimi", "İşlem", "Hacim", "Kayıt Tarihi"].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[11px] text-white/30 font-medium uppercase tracking-wider whitespace-nowrap">
                       {h}
                     </th>
@@ -165,7 +162,7 @@ export default async function AdminPage() {
                             {p?.avatar_emoji || "👤"}
                           </div>
                           <span className="text-sm text-white/80 font-medium truncate max-w-[120px]">
-                            {p?.full_name || "Isimsiz"}
+                            {p?.full_name || "İsimsiz"}
                           </span>
                         </div>
                       </td>
@@ -190,12 +187,12 @@ export default async function AdminPage() {
             </table>
 
             {userList.length === 0 && (
-              <div className="py-16 text-center text-white/25 text-sm">Henuz kullanici yok</div>
+              <div className="py-16 text-center text-white/25 text-sm">Henüz kullanıcı yok</div>
             )}
           </div>
         </div>
 
-        <p className="text-center text-xs text-white/15 mt-6">Sadece admin gorebilir</p>
+        <p className="text-center text-xs text-white/15 mt-6">Sadece admin görebilir</p>
       </div>
     </div>
   )

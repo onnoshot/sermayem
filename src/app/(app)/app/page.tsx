@@ -131,14 +131,14 @@ export default async function DashboardPage() {
         </div>
       </StaggerItem>
 
-      {/* Calendar + Son Islemler */}
+      {/* Calendar + Son İşlemler */}
       <StaggerItem>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <GlassSurface className="p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-base font-bold text-white">Takvim</h3>
-                <p className="text-xs text-white/35 mt-0.5">{pending.length} bekleyen islem</p>
+                <p className="text-xs text-white/35 mt-0.5">{pending.length} bekleyen işlem</p>
               </div>
               <Link href="/app/pending" className="flex items-center gap-1 text-xs text-[#E50001] hover:text-red-400 transition-colors">
                 Bekleyenler <ArrowRight className="h-3.5 w-3.5" />
@@ -150,11 +150,11 @@ export default async function DashboardPage() {
           <GlassSurface className="p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-base font-bold text-white">Son Islemler</h3>
+                <h3 className="text-base font-bold text-white">Son İşlemler</h3>
                 <p className="text-xs text-white/35 mt-0.5">Tamamlananlar</p>
               </div>
               <Link href="/app/income" className="flex items-center gap-1 text-xs text-[#E50001] hover:text-red-400 transition-colors">
-                Tumu <ArrowRight className="h-3.5 w-3.5" />
+                Tümü <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
             <TransactionList transactions={completed.slice(0, 5)} currency={currency} showEdit />

@@ -60,6 +60,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
@@ -67,7 +68,9 @@ body {
   color: var(--c-text);
   font-family: var(--font-family-sans);
   min-height: 100vh;
+  min-height: 100dvh;
   transition: background 0.3s ease, color 0.2s ease;
+  overflow-x: clip;
 }
 
 .tabular-nums {

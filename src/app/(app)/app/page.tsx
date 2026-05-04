@@ -11,6 +11,7 @@ import { BalanceHero } from "@/components/dashboard/balance-hero"
 import { ChartsSection } from "@/components/dashboard/charts-section"
 import { KpiCard } from "@/components/dashboard/kpi-card"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { PendingCalendar } from "@/components/pending/pending-calendar"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -138,27 +139,27 @@ export default async function DashboardPage() {
       {/* Bottom Row */}
       <StaggerItem>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <GlassSurface className="p-6">
-            <div className="flex items-center justify-between mb-5">
+          <GlassSurface className="p-5">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-bold text-white">Bekleyenler</h3>
-                <p className="text-xs text-white/35 mt-0.5">{pending.length} işlem bekliyor</p>
+                <h3 className="text-base font-bold text-white">Takvim</h3>
+                <p className="text-xs text-white/35 mt-0.5">{pending.length} bekleyen islem</p>
               </div>
-              <Link href="/app/pending" className="flex items-center gap-1 text-xs text-yellow-400 hover:text-yellow-300 transition-colors">
-                Tümü <ArrowRight className="h-3.5 w-3.5" />
+              <Link href="/app/pending" className="flex items-center gap-1 text-xs text-[#E50001] hover:text-red-400 transition-colors">
+                Bekleyenler <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-            <TransactionList transactions={pending.slice(0, 5)} currency={currency} showEdit />
+            <PendingCalendar transactions={txs} currency={currency} />
           </GlassSurface>
 
           <GlassSurface className="p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-base font-bold text-white">Son İşlemler</h3>
+                <h3 className="text-base font-bold text-white">Son Islemler</h3>
                 <p className="text-xs text-white/35 mt-0.5">Tamamlananlar</p>
               </div>
-              <Link href="/app/income" className="flex items-center gap-1 text-xs text-yellow-400 hover:text-yellow-300 transition-colors">
-                Tümü <ArrowRight className="h-3.5 w-3.5" />
+              <Link href="/app/income" className="flex items-center gap-1 text-xs text-[#E50001] hover:text-red-400 transition-colors">
+                Tumü <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
             <TransactionList transactions={completed.slice(0, 5)} currency={currency} showEdit />

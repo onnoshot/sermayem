@@ -31,7 +31,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login", request.url))
   }
 
-  if (user && isAuthRoute) {
+  if (user && (isAuthRoute || path === "/")) {
     return NextResponse.redirect(new URL("/app", request.url))
   }
 

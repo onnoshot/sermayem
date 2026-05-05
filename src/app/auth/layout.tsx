@@ -6,8 +6,8 @@ import { TrendingUp } from "lucide-react"
 // ─── Animated counter ─────────────────────────────────────────────
 function CountUp({ to, duration = 1800, delay = 300 }: { to: number; duration?: number; delay?: number }) {
   const [val, setVal] = useState(0)
-  const raf = useRef<number>()
-  const t0 = useRef<number>()
+  const raf = useRef<number | undefined>(undefined)
+  const t0 = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     const timer = setTimeout(() => {

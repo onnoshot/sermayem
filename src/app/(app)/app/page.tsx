@@ -117,17 +117,19 @@ export default async function DashboardPage() {
             href="/app/pending"
             index={3}
           />
-          <KpiCard
-            label="Ay Sonu Tahmini"
-            value={netPending}
-            currency={currency}
-            icon="Rocket"
-            gradient={netPending >= 0 ? "from-yellow-500 to-amber-400" : "from-red-500 to-rose-400"}
-            glow={netPending >= 0 ? "rgba(234,179,8,0.18)" : "rgba(239,68,68,0.15)"}
-            href="/app/pending"
-            index={4}
-            showSign
-          />
+          <div className="col-span-2 sm:col-span-1">
+            <KpiCard
+              label="Ay Sonu Tahmini"
+              value={netPending}
+              currency={currency}
+              icon="Rocket"
+              gradient={netPending >= 0 ? "from-yellow-500 to-amber-400" : "from-red-500 to-rose-400"}
+              glow={netPending >= 0 ? "rgba(234,179,8,0.18)" : "rgba(239,68,68,0.15)"}
+              href="/app/pending"
+              index={4}
+              showSign
+            />
+          </div>
         </div>
       </StaggerItem>
 

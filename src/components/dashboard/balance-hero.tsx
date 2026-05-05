@@ -30,18 +30,12 @@ export function BalanceHero({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="relative rounded-[28px] overflow-hidden border border-white/[0.08]"
-      style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(44px)", boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)" }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="relative rounded-[22px] overflow-hidden border border-white/[0.07]"
+      style={{ background: "rgba(255,255,255,0.03)" }}
     >
-      {/* Ambient glow */}
-      <div
-        className="absolute -top-20 -right-20 h-64 w-64 rounded-full pointer-events-none"
-        style={{ background: isPositive ? "radial-gradient(circle, rgba(234,179,8,0.12), transparent 70%)" : "radial-gradient(circle, rgba(239,68,68,0.12), transparent 70%)" }}
-      />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
       <div className="p-5 sm:p-8 lg:p-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-12">
@@ -51,7 +45,7 @@ export function BalanceHero({
             <p className="text-[11px] text-white/35 uppercase tracking-[0.2em] mb-3">Net Bakiye</p>
 
             <div className="mb-6">
-              <span className={`text-5xl lg:text-7xl font-black tracking-tight leading-none font-mono ${isPositive ? "text-white" : "text-red-400"}`}>
+              <span className={`text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-none font-mono ${isPositive ? "text-white" : "text-red-400"}`}>
                 <AnimatedNumber
                   value={Math.abs(net)}
                   format={(v) => {
@@ -105,18 +99,15 @@ export function BalanceHero({
           </div>
 
           {/* RIGHT — stats column */}
-          <div className="flex flex-row lg:flex-col items-stretch gap-3 lg:min-w-[200px]">
+          <div className="flex flex-col sm:flex-row lg:flex-col items-stretch gap-3 lg:min-w-[200px]">
 
             {/* Ay Sonu Tahmini */}
             <motion.div
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.35, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="flex-1 lg:flex-none p-4 rounded-2xl border relative overflow-hidden"
-              style={{
-                background: netPending >= 0 ? "rgba(234,179,8,0.08)" : "rgba(239,68,68,0.08)",
-                borderColor: netPending >= 0 ? "rgba(234,179,8,0.2)" : "rgba(239,68,68,0.2)",
-              }}
+              className="flex-1 lg:flex-none p-4 rounded-[16px] border border-white/[0.07] relative overflow-hidden"
+              style={{ background: "rgba(255,255,255,0.03)" }}
             >
               <div className="flex items-center gap-2 mb-2">
                 <Rocket className="h-3.5 w-3.5 text-yellow-400" />
@@ -137,7 +128,7 @@ export function BalanceHero({
                 initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.45, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="flex-1 lg:flex-none p-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] flex flex-col items-center justify-center gap-3"
+                className="flex-1 lg:flex-none p-4 rounded-[16px] border border-white/[0.07] bg-white/[0.02] flex flex-col items-center justify-center gap-3"
               >
                 <div className="relative h-16 w-16">
                   <svg viewBox="0 0 64 64" className="h-full w-full -rotate-90">

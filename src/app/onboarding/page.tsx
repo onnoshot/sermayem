@@ -24,6 +24,21 @@ const GENDERS = [
   { value: "belirtmek_istemiyorum", label: "Belirtmek istemiyorum" },
 ] as const
 
+const AGES = Array.from({ length: 100 }, (_, i) => i + 1)
+
+const CITIES = [
+  "Adana","Adıyaman","Afyonkarahisar","Ağrı","Amasya","Ankara","Antalya","Artvin",
+  "Aydın","Balıkesir","Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa",
+  "Çanakkale","Çankırı","Çorum","Denizli","Diyarbakır","Düzce","Edirne","Elazığ",
+  "Erzincan","Erzurum","Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari",
+  "Hatay","Iğdır","Isparta","İstanbul","İzmir","Kahramanmaraş","Karabük","Karaman",
+  "Kars","Kastamonu","Kayseri","Kırıkkale","Kırklareli","Kırşehir","Kilis","Kocaeli",
+  "Konya","Kütahya","Malatya","Manisa","Mardin","Mersin","Muğla","Muş","Nevşehir",
+  "Niğde","Ordu","Osmaniye","Rize","Sakarya","Samsun","Siirt","Sinop","Sivas",
+  "Şanlıurfa","Şırnak","Tekirdağ","Tokat","Trabzon","Tunceli","Uşak","Van","Yalova",
+  "Yozgat","Zonguldak",
+]
+
 const steps = ["Hoş geldin", "Hakkında", "Para birimi", "Hedefler"]
 
 export default function OnboardingPage() {
@@ -132,21 +147,34 @@ export default function OnboardingPage() {
 
                   {/* Yaş + Şehir */}
                   <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      label="Yaş"
-                      type="number"
-                      placeholder="28"
-                      min="1"
-                      max="120"
-                      value={form.age}
-                      onChange={(e) => setForm((f) => ({ ...f, age: e.target.value }))}
-                    />
-                    <Input
-                      label="Şehir"
-                      placeholder="İstanbul"
-                      value={form.city}
-                      onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-                    />
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-white/50 uppercase tracking-wider">Yaş</label>
+                      <select
+                        value={form.age}
+                        onChange={(e) => setForm((f) => ({ ...f, age: e.target.value }))}
+                        className="w-full rounded-[12px] px-4 py-3 text-[16px] sm:text-sm bg-white/[0.05] border border-white/[0.08] text-white/90 focus:outline-none focus:border-[#E50001]/50 focus:bg-white/[0.07] transition-all"
+                        style={{ colorScheme: "dark" }}
+                      >
+                        <option value="" style={{ background: "#0F0F18" }}>Seç</option>
+                        {AGES.map((a) => (
+                          <option key={a} value={a} style={{ background: "#0F0F18" }}>{a}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-medium text-white/50 uppercase tracking-wider">Şehir</label>
+                      <select
+                        value={form.city}
+                        onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+                        className="w-full rounded-[12px] px-4 py-3 text-[16px] sm:text-sm bg-white/[0.05] border border-white/[0.08] text-white/90 focus:outline-none focus:border-[#E50001]/50 focus:bg-white/[0.07] transition-all"
+                        style={{ colorScheme: "dark" }}
+                      >
+                        <option value="" style={{ background: "#0F0F18" }}>Seç</option>
+                        {CITIES.map((c) => (
+                          <option key={c} value={c} style={{ background: "#0F0F18" }}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
 

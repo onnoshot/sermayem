@@ -4,6 +4,7 @@ import { useUIStore } from "@/lib/stores/ui-store"
 import { motion, AnimatePresence } from "framer-motion"
 import { TransactionModal } from "@/components/transactions/transaction-modal"
 import { MobileTopBar } from "@/components/shared/mobile-top-bar"
+import { MobileBottomNav } from "@/components/shared/mobile-bottom-nav"
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { sidebarOpen, toggleSidebar } = useUIStore()
@@ -41,10 +42,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className="flex-1 overflow-y-auto min-h-screen"
       >
         {isMobile && <MobileTopBar />}
-        <div className={`max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 ${isMobile ? "pt-[76px]" : ""}`}>
+        <div className={`max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 ${isMobile ? "pt-[76px] pb-28" : ""}`}>
           {children}
         </div>
         <TransactionModal />
+        {isMobile && <MobileBottomNav />}
       </motion.main>
     </>
   )

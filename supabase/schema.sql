@@ -78,9 +78,6 @@ begin
   values (new.id, new.raw_user_meta_data->>'full_name');
 
   insert into public.sources (user_id, name, emoji, color, type, is_default) values
-    (new.id, 'Retro Camera Land', '📷', '#FF6B35', 'income', true),
-    (new.id, 'Uniqbee', '🐝', '#FFD60A', 'income', true),
-    (new.id, 'Onnoshot', '🎯', '#007AFF', 'income', true),
     (new.id, 'Freelance', '💻', '#EAB308', 'income', true),
     (new.id, 'Maaş', '💼', '#22C55E', 'income', true),
     (new.id, 'Yatırım', '📈', '#3B82F6', 'income', true),

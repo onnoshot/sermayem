@@ -1,8 +1,14 @@
+import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { AmbientBackground } from "@/components/ambient-background"
 import { Sidebar } from "@/components/shared/sidebar"
 import { AppShell } from "@/components/shared/app-shell"
+import { TutorialModal } from "@/components/tutorial-modal"
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -18,6 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <AmbientBackground />
       <Sidebar profile={profile} />
       <AppShell>{children}</AppShell>
+      <TutorialModal />
     </div>
   )
 }

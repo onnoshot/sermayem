@@ -21,6 +21,30 @@ export function TransactionModal() {
   const [sources, setSources] = useState<Source[]>([])
   const [editData, setEditData] = useState<Transaction | null>(null)
 
+  // Lock body scroll on iOS when modal is open
+  useEffect(() => {
+    if (transactionModalOpen) {
+      const y = window.scrollY
+      document.body.style.overflow = "hidden"
+      document.body.style.position = "fixed"
+      document.body.style.top = `-${y}px`
+      document.body.style.width = "100%"
+    } else {
+      const top = document.body.style.top
+      document.body.style.overflow = ""
+      document.body.style.position = ""
+      document.body.style.top = ""
+      document.body.style.width = ""
+      window.scrollTo(0, -parseInt(top || "0"))
+    }
+    return () => {
+      document.body.style.overflow = ""
+      document.body.style.position = ""
+      document.body.style.top = ""
+      document.body.style.width = ""
+    }
+  }, [transactionModalOpen])
+
   const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<TransactionInput>({
     resolver: zodResolver(transactionSchema),
     defaultValues: { type: "income", status: "completed", currency: "TRY", is_recurring: false, occurred_on: format(new Date(), "yyyy-MM-dd") },
@@ -222,11 +246,12 @@ export function TransactionModal() {
                     )}
 
                     {/* Description + Date */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Input label="Açıklama" placeholder="Açıklama..." {...register("description")} />
                       <Input
                         label={watchStatus === "pending" ? "Vade Tarihi" : "Tarih"}
                         type="date"
+                        className="text-[16px]"
                         {...register(watchStatus === "pending" ? "due_on" : "occurred_on")}
                       />
                     </div>

@@ -77,12 +77,12 @@ export function SourcesGrid({ sources }: SourcesGridProps) {
               <p className="text-sm font-medium text-white/80">{src.name}</p>
               <p className="text-[10px] text-white/30 mt-0.5">{TYPE_LABELS[src.type]}</p>
             </div>
-            {/* Actions */}
-            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Actions — always visible on mobile, hover on desktop */}
+            <div className="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <button onClick={() => openEdit(src)} className="h-6 w-6 rounded-[6px] bg-white/[0.08] flex items-center justify-center text-white/40 hover:text-white/80 hover:bg-white/[0.14] transition-all">
                 <Pencil className="h-3 w-3" />
               </button>
-              <button onClick={() => archiveSrc(src)} className="h-6 w-6 rounded-[6px] bg-white/[0.08] flex items-center justify-center text-white/40 hover:text-yellow-400 hover:bg-yellow-500/10 transition-all">
+              <button onClick={() => archiveSrc(src)} className="h-6 w-6 rounded-[6px] bg-white/[0.08] flex items-center justify-center text-white/40 hover:text-orange-400 hover:bg-orange-500/10 transition-all">
                 <Archive className="h-3 w-3" />
               </button>
               <button onClick={() => deleteSrc(src.id)} className="h-6 w-6 rounded-[6px] bg-white/[0.08] flex items-center justify-center text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-all">
@@ -93,8 +93,8 @@ export function SourcesGrid({ sources }: SourcesGridProps) {
         ))}
         {/* Add new */}
         <button onClick={openAdd}
-          className="rounded-[20px] p-5 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-white/[0.1] hover:border-yellow-500/40 hover:bg-yellow-500/[0.03] transition-all min-h-[130px]">
-          <div className="h-10 w-10 rounded-full border border-white/[0.1] flex items-center justify-center text-white/30 hover:text-yellow-400">
+          className="rounded-[20px] p-5 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-white/[0.1] hover:border-[#E50001]/40 hover:bg-[#E50001]/[0.03] transition-all min-h-[130px]">
+          <div className="h-10 w-10 rounded-full border border-white/[0.1] flex items-center justify-center text-white/30 hover:text-[#E50001]">
             <Plus className="h-5 w-5" />
           </div>
           <span className="text-xs text-white/30">Yeni Kaynak</span>
@@ -135,7 +135,7 @@ export function SourcesGrid({ sources }: SourcesGridProps) {
                     {EMOJIS.map((e) => (
                       <button key={e} onClick={() => setForm((f) => ({ ...f, emoji: e }))}
                         className={cn("h-9 w-9 rounded-[10px] text-lg flex items-center justify-center transition-all",
-                          form.emoji === e ? "bg-yellow-500/20 border border-yellow-500/40 scale-110" : "bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.08]")}>
+                          form.emoji === e ? "bg-[#E50001]/15 border border-[#E50001]/40 scale-110" : "bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.08]")}>
                         {e}
                       </button>
                     ))}
@@ -157,7 +157,7 @@ export function SourcesGrid({ sources }: SourcesGridProps) {
                     {(["income","expense","both"] as const).map((t) => (
                       <button key={t} onClick={() => setForm((f) => ({ ...f, type: t }))}
                         className={cn("flex-1 py-2 rounded-[10px] text-xs font-medium transition-all border",
-                          form.type === t ? "bg-yellow-500/15 border-yellow-500/40 text-yellow-400" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:text-white/60")}>
+                          form.type === t ? "bg-[#E50001]/15 border-[#E50001]/40 text-[#E50001]" : "bg-white/[0.03] border-white/[0.07] text-white/40 hover:text-white/60")}>
                         {TYPE_LABELS[t]}
                       </button>
                     ))}

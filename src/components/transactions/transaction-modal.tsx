@@ -253,7 +253,6 @@ export function TransactionModal() {
                       <Input
                         label={watchStatus === "pending" ? "Vade Tarihi" : "Tarih"}
                         type="date"
-                        className="text-[16px]"
                         {...register(watchStatus === "pending" ? "due_on" : "occurred_on")}
                       />
                     </div>

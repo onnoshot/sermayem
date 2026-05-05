@@ -57,7 +57,9 @@ export function TransactionModal() {
   useEffect(() => {
     async function load() {
       const supabase = createClient()
-      const { data: s } = await supabase.from("sources").select("*").eq("archived", false).order("name")
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: s } = await supabase.from("sources").select("*").eq("user_id", user.id).eq("archived", false).order("name")
       setSources(s || [])
       if (editingTransactionId) {
         const { data: tx } = await supabase.from("transactions").select("*").eq("id", editingTransactionId).single()

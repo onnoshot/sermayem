@@ -34,25 +34,27 @@ async function readExifOrientation(file: File): Promise<number> {
       try {
         const view = new DataView(e.target!.result as ArrayBuffer)
         if (view.getUint16(0, false) !== 0xffd8) { resolve(1); return }
-        let offset = 2
-        while (offset < view.byteLength - 2) {
-          const marker = view.getUint16(offset, false)
-          offset += 2
+        let pos = 2
+        while (pos < view.byteLength - 4) {
+          const marker = view.getUint16(pos, false)
+          const segLen = view.getUint16(pos + 2, false)
           if (marker === 0xffe1) {
-            offset += 2
-            if (view.getUint32(offset, false) !== 0x45786966) { resolve(1); return }
-            const le = view.getUint16(offset + 6, false) === 0x4949
-            const ifdOffset = view.getUint32(offset + 10, le)
-            offset += ifdOffset
-            const tags = view.getUint16(offset, le)
-            offset += 2
-            for (let i = 0; i < tags; i++) {
-              if (view.getUint16(offset + i * 12, le) === 0x0112) {
-                resolve(view.getUint16(offset + i * 12 + 8, le)); return
+            // APP1 layout: 2B marker | 2B length | "Exif\0\0" 6B | TIFF header
+            if (view.getUint32(pos + 4, false) !== 0x45786966) { resolve(1); return }
+            const tiff = pos + 10                              // TIFF header start
+            const le = view.getUint16(tiff, false) === 0x4949  // byte order
+            const ifd0 = tiff + view.getUint32(tiff + 4, le)  // IFD0 offset relative to TIFF start
+            const numTags = view.getUint16(ifd0, le)
+            for (let i = 0; i < numTags; i++) {
+              const entry = ifd0 + 2 + i * 12
+              if (view.getUint16(entry, le) === 0x0112) {
+                resolve(view.getUint16(entry + 8, le)); return
               }
             }
-          } else if ((marker & 0xff00) !== 0xff00) break
-          else offset += view.getUint16(offset, false)
+            resolve(1); return
+          }
+          if ((marker & 0xff00) !== 0xff00) break
+          pos += 2 + segLen
         }
       } catch { /* ignore */ }
       resolve(1)
@@ -101,15 +103,17 @@ async function compressImage(file: File): Promise<string> {
         ctx.fillRect(0, 0, w, h)
 
         // Apply EXIF rotation transform
+        // For rotated images, canvas is w×h (portrait), drawImage draws at (h, w) in draw-space.
+        // Each transform maps the draw-space rectangle into the canvas correctly.
         ctx.save()
         switch (orientation) {
           case 2: ctx.transform(-1, 0, 0, 1, w, 0); break
           case 3: ctx.transform(-1, 0, 0, -1, w, h); break
           case 4: ctx.transform(1, 0, 0, -1, 0, h); break
           case 5: ctx.transform(0, 1, 1, 0, 0, 0); break
-          case 6: ctx.transform(0, 1, -1, 0, h, 0); break
-          case 7: ctx.transform(0, -1, -1, 0, h, w); break
-          case 8: ctx.transform(0, -1, 1, 0, 0, w); break
+          case 6: ctx.transform(0, 1, -1, 0, w, 0); break  // 90° CW: translate by canvas width
+          case 7: ctx.transform(0, -1, -1, 0, w, h); break
+          case 8: ctx.transform(0, -1, 1, 0, 0, h); break  // 90° CCW: translate by canvas height
         }
         ctx.drawImage(img, 0, 0, rotated ? h : w, rotated ? w : h)
         ctx.restore()

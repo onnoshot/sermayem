@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, GripHorizontal, Sparkles } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Source, Transaction } from "@/types/database"
+import { SourceIcon } from "@/components/sources/source-icon"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 
@@ -274,7 +275,7 @@ export function TransactionModal() {
                                     ? "border-[#E50001]/40 bg-[#E50001]/10"
                                     : "border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.06]"
                                 )}>
-                                <span className="text-lg sm:text-xl">{src.emoji}</span>
+                                <SourceIcon emoji={src.emoji} className="h-5 w-5" />
                                 <span className="text-[10px] text-white/50 leading-tight line-clamp-1">{src.name}</span>
                               </button>
                             ))}

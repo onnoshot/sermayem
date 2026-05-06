@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { formatCurrencyCompact, formatDate } from "@/lib/format"
 import type { Transaction, Source, Currency } from "@/types/database"
 import { TrendingUp, TrendingDown, CheckCircle2, Pencil } from "lucide-react"
+import { SourceIcon } from "@/components/sources/source-icon"
 import { cn } from "@/lib/utils"
 
 interface TransactionListProps {
@@ -63,14 +64,19 @@ export function TransactionList({ transactions, currency = "TRY", showEdit = tru
               )}
             >
               {/* Icon */}
-              <div className={cn(
-                "h-10 w-10 rounded-[12px] flex items-center justify-center flex-shrink-0 text-lg",
-                !tx.source?.emoji && (isIncome ? "bg-green-500/[0.12]" : "bg-red-500/[0.12]")
-              )}>
-                {tx.source?.emoji || (isIncome
-                  ? <TrendingUp className="h-4.5 w-4.5 text-green-400" />
-                  : <TrendingDown className="h-4.5 w-4.5 text-red-400" />
-                )}
+              <div
+                className="h-10 w-10 rounded-[12px] flex items-center justify-center flex-shrink-0"
+                style={tx.source?.color
+                  ? { background: `${tx.source.color}18`, color: tx.source.color }
+                  : { background: isIncome ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)", color: isIncome ? "#22c55e" : "#ef4444" }
+                }
+              >
+                {tx.source?.emoji
+                  ? <SourceIcon emoji={tx.source.emoji} className="h-5 w-5" />
+                  : isIncome
+                    ? <TrendingUp className="h-4.5 w-4.5" />
+                    : <TrendingDown className="h-4.5 w-4.5" />
+                }
               </div>
 
               {/* Text */}

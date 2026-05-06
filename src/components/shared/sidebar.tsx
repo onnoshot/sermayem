@@ -33,9 +33,10 @@ const BOTTOM_NAV = [
 
 interface SidebarProps {
   profile: Profile | null
+  isPro: boolean
 }
 
-export function Sidebar({ profile }: SidebarProps) {
+export function Sidebar({ profile, isPro }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { sidebarOpen, toggleSidebar, setSidebarOpen, openAddTransaction, openProModal, profileAvatarUrl } = useUIStore()
@@ -217,31 +218,59 @@ export function Sidebar({ profile }: SidebarProps) {
           </Link>
         ))}
 
-        {/* Pro upgrade button */}
-        <motion.button
-          onClick={() => { openProModal(); isMobile && setSidebarOpen(false) }}
-          whileHover={{ scale: 1.02, boxShadow: "0 0 24px rgba(245,158,11,0.35)" }}
-          whileTap={{ scale: 0.97 }}
-          className={cn(
-            "w-full flex items-center gap-2.5 rounded-[12px] font-bold text-[13px] transition-all mb-1",
-            sidebarOpen ? "px-3.5 py-2.5 justify-start" : "h-11 w-11 justify-center mx-auto px-0"
-          )}
-          style={{
-            background: "linear-gradient(135deg, rgba(252,211,77,0.14) 0%, rgba(245,158,11,0.08) 100%)",
-            border: "1px solid rgba(245,158,11,0.28)",
-            boxShadow: "0 0 12px rgba(245,158,11,0.1)",
-          }}
-        >
-          <div className="h-5 w-5 flex items-center justify-center flex-shrink-0">
-            {sidebarOpen
-              ? <Sparkles className="h-4 w-4 text-amber-400" />
-              : <Crown className="h-4 w-4 text-amber-400" />
-            }
+        {/* Pro upgrade button / Pro badge */}
+        {isPro ? (
+          <div
+            className={cn(
+              "flex items-center gap-2.5 rounded-[12px] mb-1",
+              sidebarOpen ? "px-3.5 py-2.5" : "h-11 w-11 justify-center mx-auto"
+            )}
+            style={{
+              background: "linear-gradient(135deg, rgba(252,211,77,0.12) 0%, rgba(245,158,11,0.06) 100%)",
+              border: "1px solid rgba(245,158,11,0.25)",
+            }}
+          >
+            <div className="h-5 w-5 flex items-center justify-center flex-shrink-0">
+              <Crown className="h-4 w-4 text-amber-400" />
+            </div>
+            {sidebarOpen && (
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] font-black" style={{ color: "#FCD34D" }}>PRO</span>
+                <span
+                  className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase"
+                  style={{ background: "rgba(52,211,153,0.15)", color: "#34D399", border: "1px solid rgba(52,211,153,0.25)" }}
+                >
+                  Aktif
+                </span>
+              </div>
+            )}
           </div>
-          {sidebarOpen && (
-            <span style={{ color: "#FCD34D" }}>Pro Paket Al</span>
-          )}
-        </motion.button>
+        ) : (
+          <motion.button
+            onClick={() => { openProModal(); isMobile && setSidebarOpen(false) }}
+            whileHover={{ scale: 1.02, boxShadow: "0 0 24px rgba(245,158,11,0.35)" }}
+            whileTap={{ scale: 0.97 }}
+            className={cn(
+              "w-full flex items-center gap-2.5 rounded-[12px] font-bold text-[13px] transition-all mb-1",
+              sidebarOpen ? "px-3.5 py-2.5 justify-start" : "h-11 w-11 justify-center mx-auto px-0"
+            )}
+            style={{
+              background: "linear-gradient(135deg, rgba(252,211,77,0.14) 0%, rgba(245,158,11,0.08) 100%)",
+              border: "1px solid rgba(245,158,11,0.28)",
+              boxShadow: "0 0 12px rgba(245,158,11,0.1)",
+            }}
+          >
+            <div className="h-5 w-5 flex items-center justify-center flex-shrink-0">
+              {sidebarOpen
+                ? <Sparkles className="h-4 w-4 text-amber-400" />
+                : <Crown className="h-4 w-4 text-amber-400" />
+              }
+            </div>
+            {sidebarOpen && (
+              <span style={{ color: "#FCD34D" }}>Pro Paket Al</span>
+            )}
+          </motion.button>
+        )}
 
         {/* Profile card */}
         <div className={cn(

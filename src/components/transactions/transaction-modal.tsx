@@ -9,12 +9,31 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
-import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, GripHorizontal, Sparkles } from "lucide-react"
+import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, GripHorizontal, Sparkles, Camera, ImageIcon, ScanLine, CheckCheck, AlertCircle } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Source, Transaction } from "@/types/database"
 import { SourceIcon } from "@/components/sources/source-icon"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
+
+interface ScanResult {
+  amount: number | null
+  description: string
+  date: string
+  type: "income" | "expense"
+  category: string
+  currency?: string
+  notes?: string
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => resolve(e.target?.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
 
 export function TransactionModal() {
   const { transactionModalOpen, editingTransactionId, prefillDate, closeTransactionModal } = useUIStore()
@@ -24,6 +43,12 @@ export function TransactionModal() {
   const [aiSuggestion, setAiSuggestion] = useState<{ sourceId: string; sourceName: string; sourceEmoji: string; confidence: string } | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Receipt scanner state
+  const [scanState, setScanState] = useState<"idle" | "scanning" | "done" | "error">("idle")
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null)
+  const [scanPreview, setScanPreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Lock body scroll on iOS when modal is open
   useEffect(() => {
@@ -121,8 +146,86 @@ export function TransactionModal() {
         })
       }
     }
-    if (transactionModalOpen) load()
+    if (transactionModalOpen) {
+      load()
+      // Reset scanner state when modal opens
+      setScanState("idle")
+      setScanResult(null)
+      setScanPreview(null)
+    }
   }, [transactionModalOpen, editingTransactionId, reset, prefillDate])
+
+  async function handleReceiptFile(file: File) {
+    if (!file.type.startsWith("image/")) { toast.error("Lütfen bir görüntü dosyası seçin"); return }
+    if (file.size > 10 * 1024 * 1024) { toast.error("Dosya boyutu 10MB'ı geçemez"); return }
+
+    setScanState("scanning")
+    setScanResult(null)
+
+    try {
+      const base64 = await fileToBase64(file)
+      setScanPreview(base64)
+
+      const res = await fetch("/api/scan-receipt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: base64, mimeType: file.type }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Tarama başarısız")
+      }
+
+      const result = await res.json() as ScanResult
+      setScanResult(result)
+      setScanState("done")
+    } catch (err) {
+      console.error(err)
+      setScanState("error")
+      toast.error(err instanceof Error ? err.message : "Fiş taranamadı")
+    }
+  }
+
+  function applyScanResult() {
+    if (!scanResult) return
+
+    if (scanResult.amount !== null && scanResult.amount > 0) {
+      setValue("amount", scanResult.amount)
+    }
+    if (scanResult.description) {
+      setValue("description", scanResult.description)
+    }
+    if (scanResult.date) {
+      setValue("occurred_on", scanResult.date)
+    }
+    setValue("type", scanResult.type || "expense")
+    setValue("status", "completed")
+
+    // Try to match category to a source
+    if (scanResult.category && sources.length > 0) {
+      const categoryLower = scanResult.category.toLowerCase()
+      const matched = sources.find((s) =>
+        s.name.toLowerCase().includes(categoryLower) ||
+        categoryLower.includes(s.name.toLowerCase()) ||
+        (s.type === "expense" || s.type === "both")
+      )
+      if (matched && (matched.type === "expense" || matched.type === "both")) {
+        // Trigger AI suggestion via description instead of forcing a match
+      }
+    }
+
+    setScanState("idle")
+    setScanPreview(null)
+    setScanResult(null)
+    toast.success("Fiş bilgileri aktarıldı")
+  }
+
+  function dismissScan() {
+    setScanState("idle")
+    setScanPreview(null)
+    setScanResult(null)
+  }
 
   async function onSubmit(data: TransactionInput) {
     const supabase = createClient()
@@ -159,7 +262,7 @@ export function TransactionModal() {
             onClick={closeTransactionModal}
           />
 
-          {/* Sheet container — bottom on mobile, centered on desktop */}
+          {/* Sheet container */}
           <div className="absolute inset-0 flex items-end sm:items-center sm:justify-center sm:p-4 pointer-events-none">
             <motion.div
               initial={{ y: "100%", opacity: 0 }}
@@ -187,19 +290,174 @@ export function TransactionModal() {
                     <h2 className="text-lg font-bold text-white">
                       {editingTransactionId ? "İşlemi Düzenle" : "İşlem Ekle"}
                     </h2>
-                    <button
-                      onClick={closeTransactionModal}
-                      className="h-8 w-8 rounded-full bg-white/[0.07] flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.12] transition-all"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {/* Receipt scan button — only for new transactions */}
+                      {!editingTransactionId && (
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-semibold transition-all border border-purple-500/25 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/40"
+                        >
+                          <ScanLine className="h-3.5 w-3.5" />
+                          Fiş Tara
+                        </button>
+                      )}
+                      <button
+                        onClick={closeTransactionModal}
+                        className="h-8 w-8 rounded-full bg-white/[0.07] flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.12] transition-all"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Hidden file input — camera on mobile, gallery on desktop */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) handleReceiptFile(file)
+                      e.target.value = ""
+                    }}
+                  />
+
+                  {/* Scanner overlay */}
+                  <AnimatePresence>
+                    {scanState !== "idle" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -8, height: 0 }}
+                        animate={{ opacity: 1, y: 0, height: "auto" }}
+                        exit={{ opacity: 0, y: -8, height: 0 }}
+                        className="overflow-hidden mb-4"
+                      >
+                        <div className="rounded-[16px] border overflow-hidden"
+                          style={{ borderColor: scanState === "done" ? "rgba(34,197,94,0.25)" : scanState === "error" ? "rgba(239,68,68,0.25)" : "rgba(168,85,247,0.25)", background: scanState === "done" ? "rgba(34,197,94,0.05)" : scanState === "error" ? "rgba(239,68,68,0.05)" : "rgba(168,85,247,0.05)" }}>
+                          <div className="p-3.5">
+                            {scanState === "scanning" && (
+                              <div className="flex items-center gap-3">
+                                {/* Image preview thumbnail */}
+                                {scanPreview && (
+                                  <div className="h-14 w-14 rounded-[10px] overflow-hidden flex-shrink-0 border border-white/10">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={scanPreview} alt="Fiş" className="h-full w-full object-cover" />
+                                  </div>
+                                )}
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <ScanLine className="h-4 w-4 text-purple-400 animate-pulse" />
+                                    <span className="text-sm font-semibold text-purple-300">Fiş analiz ediliyor...</span>
+                                  </div>
+                                  <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                    <motion.div
+                                      className="h-full rounded-full bg-purple-500"
+                                      animate={{ width: ["0%", "70%", "90%"] }}
+                                      transition={{ duration: 2.5, ease: "easeOut" }}
+                                    />
+                                  </div>
+                                  <p className="text-[11px] text-white/35 mt-1.5">AI bilgileri çıkarıyor</p>
+                                </div>
+                                <button onClick={dismissScan} className="h-6 w-6 rounded-full flex items-center justify-center text-white/25 hover:text-white/50 transition-all flex-shrink-0">
+                                  <X className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            )}
+
+                            {scanState === "done" && scanResult && (
+                              <div className="flex items-start gap-3">
+                                {scanPreview && (
+                                  <div className="h-14 w-14 rounded-[10px] overflow-hidden flex-shrink-0 border border-white/10">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={scanPreview} alt="Fiş" className="h-full w-full object-cover" />
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 mb-2">
+                                    <CheckCheck className="h-4 w-4 text-green-400 flex-shrink-0" />
+                                    <span className="text-sm font-semibold text-green-400">Fiş okundu</span>
+                                  </div>
+                                  <div className="space-y-0.5">
+                                    {scanResult.amount !== null && (
+                                      <p className="text-xs text-white/60">
+                                        <span className="text-white/35">Tutar: </span>
+                                        <span className="font-mono font-semibold text-white/80">{scanResult.amount?.toLocaleString("tr-TR")} {scanResult.currency || "TRY"}</span>
+                                      </p>
+                                    )}
+                                    {scanResult.description && (
+                                      <p className="text-xs text-white/60 truncate">
+                                        <span className="text-white/35">Yer: </span>
+                                        <span className="text-white/80">{scanResult.description}</span>
+                                      </p>
+                                    )}
+                                    {scanResult.category && (
+                                      <p className="text-xs text-white/60">
+                                        <span className="text-white/35">Kategori: </span>
+                                        <span className="text-white/80">{scanResult.category}</span>
+                                      </p>
+                                    )}
+                                    {scanResult.date && (
+                                      <p className="text-xs text-white/60">
+                                        <span className="text-white/35">Tarih: </span>
+                                        <span className="text-white/80">{scanResult.date}</span>
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex flex-col gap-1.5 flex-shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={applyScanResult}
+                                    className="px-3 py-1.5 rounded-[9px] text-xs font-semibold bg-green-500/15 text-green-400 hover:bg-green-500/25 border border-green-500/25 transition-all"
+                                  >
+                                    Uygula
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={dismissScan}
+                                    className="px-3 py-1.5 rounded-[9px] text-xs font-medium text-white/30 hover:text-white/50 transition-all"
+                                  >
+                                    Yoksay
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {scanState === "error" && (
+                              <div className="flex items-center gap-3">
+                                <div className="h-8 w-8 rounded-[10px] bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                                  <AlertCircle className="h-4 w-4 text-red-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-red-400">Fiş okunamadı</p>
+                                  <p className="text-[11px] text-white/35 mt-0.5">Daha net bir fotoğraf deneyin</p>
+                                </div>
+                                <div className="flex gap-2 flex-shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => { dismissScan(); fileInputRef.current?.click() }}
+                                    className="px-3 py-1.5 rounded-[9px] text-xs font-semibold bg-white/[0.06] text-white/50 hover:bg-white/10 transition-all"
+                                  >
+                                    Tekrar
+                                  </button>
+                                  <button onClick={dismissScan} className="h-7 w-7 rounded-full flex items-center justify-center text-white/25 hover:text-white/50 transition-all">
+                                    <X className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
-                    {/* Type + Status — stack vertically on mobile */}
+                    {/* Type + Status */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {/* Type */}
                       <div>
                         <p className="text-[11px] text-white/40 uppercase tracking-wider mb-2">Tür</p>
                         <div className="grid grid-cols-2 gap-1.5 p-1 rounded-[14px] bg-white/[0.04] border border-white/[0.06]">
@@ -222,7 +480,6 @@ export function TransactionModal() {
                         </div>
                       </div>
 
-                      {/* Status */}
                       <div>
                         <p className="text-[11px] text-white/40 uppercase tracking-wider mb-2">Durum</p>
                         <div className="grid grid-cols-2 gap-1.5 p-1 rounded-[14px] bg-white/[0.04] border border-white/[0.06]">

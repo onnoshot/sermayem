@@ -26,48 +26,114 @@ interface ScanResult {
   notes?: string
 }
 
-// Compress + resize image client-side before sending to API.
-// Phone photos are 3-15MB; we need to get under 800KB for reliable API transfer.
-async function compressImage(file: File, maxSizePx = 1600, quality = 0.88): Promise<string> {
-  return new Promise((resolve, reject) => {
+// Read EXIF orientation from JPEG — iPhone photos are often rotated 90°.
+async function readExifOrientation(file: File): Promise<number> {
+  return new Promise((resolve) => {
     const reader = new FileReader()
-    reader.onerror = reject
     reader.onload = (e) => {
-      const img = new window.Image()
-      img.onerror = reject
-      img.onload = () => {
-        const { width, height } = img
-        let w = width, h = height
+      try {
+        const view = new DataView(e.target!.result as ArrayBuffer)
+        if (view.getUint16(0, false) !== 0xffd8) { resolve(1); return }
+        let offset = 2
+        while (offset < view.byteLength - 2) {
+          const marker = view.getUint16(offset, false)
+          offset += 2
+          if (marker === 0xffe1) {
+            offset += 2
+            if (view.getUint32(offset, false) !== 0x45786966) { resolve(1); return }
+            const le = view.getUint16(offset + 6, false) === 0x4949
+            const ifdOffset = view.getUint32(offset + 10, le)
+            offset += ifdOffset
+            const tags = view.getUint16(offset, le)
+            offset += 2
+            for (let i = 0; i < tags; i++) {
+              if (view.getUint16(offset + i * 12, le) === 0x0112) {
+                resolve(view.getUint16(offset + i * 12 + 8, le)); return
+              }
+            }
+          } else if ((marker & 0xff00) !== 0xff00) break
+          else offset += view.getUint16(offset, false)
+        }
+      } catch { /* ignore */ }
+      resolve(1)
+    }
+    reader.onerror = () => resolve(1)
+    reader.readAsArrayBuffer(file.slice(0, 65536))
+  })
+}
 
-        // Scale down if larger than maxSizePx
-        if (w > maxSizePx || h > maxSizePx) {
-          if (w > h) { h = Math.round((h / w) * maxSizePx); w = maxSizePx }
-          else { w = Math.round((w / h) * maxSizePx); h = maxSizePx }
+// Compress + resize image for API.
+// Uses createObjectURL (memory-efficient) + EXIF rotation fix for iPhone photos.
+async function compressImage(file: File): Promise<string> {
+  const orientation = await readExifOrientation(file)
+  const objectUrl = URL.createObjectURL(file)
+
+  return new Promise((resolve, reject) => {
+    const img = new window.Image()
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
+      reject(new Error("Görüntü açılamadı"))
+    }
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      try {
+        const MAX = 1400
+        // For orientations 5–8 width/height are swapped
+        const rotated = orientation >= 5 && orientation <= 8
+        const naturalW = rotated ? img.height : img.width
+        const naturalH = rotated ? img.width : img.height
+
+        let w = naturalW, h = naturalH
+        if (w > MAX || h > MAX) {
+          if (w >= h) { h = Math.round(h / w * MAX); w = MAX }
+          else { w = Math.round(w / h * MAX); h = MAX }
         }
 
         const canvas = document.createElement("canvas")
         canvas.width = w
         canvas.height = h
         const ctx = canvas.getContext("2d")!
-        ctx.drawImage(img, 0, 0, w, h)
 
-        // Start at target quality, reduce if still too big
-        let q = quality
-        const tryEncode = () => {
-          const dataUrl = canvas.toDataURL("image/jpeg", q)
-          const approxKB = Math.round((dataUrl.length * 0.75) / 1024)
-          if (approxKB > 900 && q > 0.5) {
-            q -= 0.1
-            tryEncode()
-          } else {
-            resolve(dataUrl)
-          }
+        // White background (avoids transparency artefacts)
+        ctx.fillStyle = "#ffffff"
+        ctx.fillRect(0, 0, w, h)
+
+        // Apply EXIF rotation transform
+        ctx.save()
+        switch (orientation) {
+          case 2: ctx.transform(-1, 0, 0, 1, w, 0); break
+          case 3: ctx.transform(-1, 0, 0, -1, w, h); break
+          case 4: ctx.transform(1, 0, 0, -1, 0, h); break
+          case 5: ctx.transform(0, 1, 1, 0, 0, 0); break
+          case 6: ctx.transform(0, 1, -1, 0, h, 0); break
+          case 7: ctx.transform(0, -1, -1, 0, h, w); break
+          case 8: ctx.transform(0, -1, 1, 0, 0, w); break
         }
-        tryEncode()
+        ctx.drawImage(img, 0, 0, rotated ? h : w, rotated ? w : h)
+        ctx.restore()
+
+        // Target ≤700KB (base64 ≈ payload * 1.37)
+        let result = canvas.toDataURL("image/jpeg", 0.84)
+        if (result.length > 960_000) result = canvas.toDataURL("image/jpeg", 0.70)
+        if (result.length > 960_000) {
+          // Still big — halve dimensions
+          const c2 = document.createElement("canvas")
+          c2.width = Math.round(w * 0.65); c2.height = Math.round(h * 0.65)
+          const ctx2 = c2.getContext("2d")!
+          ctx2.fillStyle = "#ffffff"; ctx2.fillRect(0, 0, c2.width, c2.height)
+          ctx2.drawImage(canvas, 0, 0, c2.width, c2.height)
+          result = c2.toDataURL("image/jpeg", 0.80)
+        }
+
+        resolve(result)
+      } catch (err) {
+        reject(err instanceof Error ? err : new Error("Canvas sıkıştırma hatası"))
       }
-      img.src = e.target?.result as string
     }
-    reader.readAsDataURL(file)
+
+    img.src = objectUrl
   })
 }
 
@@ -194,9 +260,8 @@ export function TransactionModal() {
   }, [transactionModalOpen, editingTransactionId, reset, prefillDate])
 
   async function handleReceiptFile(file: File) {
-    if (!file.type.startsWith("image/") && !file.name.match(/\.(heic|heif)$/i)) {
-      toast.error("Lütfen bir görüntü dosyası seçin")
-      return
+    if (!file.type.startsWith("image/") && !file.name.match(/\.(heic|heif|jpg|jpeg|png|webp)$/i)) {
+      toast.error("Lütfen bir görüntü dosyası seçin"); return
     }
 
     setScanState("compressing")
@@ -204,16 +269,25 @@ export function TransactionModal() {
     setScanError("")
 
     try {
-      // Client-side compress: resize to max 1600px, JPEG ~88% quality → ~300-600KB
+      // Resize + EXIF-correct the image (critical for iPhone portrait photos)
       const compressed = await compressImage(file)
       setScanPreview(compressed)
       setScanState("scanning")
 
-      const res = await fetch("/api/scan-receipt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: compressed, mimeType: "image/jpeg" }),
-      })
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 35_000)
+
+      let res: Response
+      try {
+        res = await fetch("/api/scan-receipt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: compressed, mimeType: "image/jpeg" }),
+          signal: controller.signal,
+        })
+      } finally {
+        clearTimeout(timeout)
+      }
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Sunucu hatası" }))
@@ -224,8 +298,10 @@ export function TransactionModal() {
       setScanResult(result)
       setScanState("done")
     } catch (err) {
-      console.error(err)
-      const msg = err instanceof Error ? err.message : "Fiş taranamadı"
+      console.error("receipt scan failed:", err)
+      const msg = err instanceof Error
+        ? err.name === "AbortError" ? "Zaman aşımı — internet bağlantınızı kontrol edin" : err.message
+        : "Fiş taranamadı"
       setScanError(msg)
       setScanState("error")
     }
@@ -408,7 +484,7 @@ export function TransactionModal() {
                   <input
                     ref={galleryInputRef}
                     type="file"
-                    accept="image/*,image/heic,image/heif"
+                    accept="image/*"
                     className="hidden"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) handleReceiptFile(f); e.target.value = "" }}
                   />

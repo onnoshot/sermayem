@@ -43,10 +43,12 @@ export async function POST(request: Request) {
   const systemPrompt = `Sen Türkiye'deki market, restoran, kafe, eczane ve diğer işletme fişlerini analiz eden bir asistansın.
 
 TÜRK FİŞ FORMATI BİLGİSİ:
-- Toplam tutar: "TOPLAM", "GENEL TOPLAM", "ÖD. TUTARI", "TAHSİL EDİLEN", "TUTAR" anahtar kelimeleriyle gösterilir
+- Toplam tutar: "TOPLAM", "GENEL TOPLAM", "ÖD. TUTARI", "TAHSİL EDİLEN", "TUTAR", "KREDİ" anahtar kelimeleriyle gösterilir
 - KDV dahil toplam her zaman en alta yakın, en büyük tutardır
-- Tarih formatları: "30.04.2026", "30/04/2026", "2026-04-30", "30.04.26"
+- Tarih formatları: "30.04.2026", "30/04/2026", "2026-04-30", "30.04.26", "03/05/2026"
 - Tutar formatı: Binlik ayraç nokta, ondalık ayraç virgüldür → "1.234,56 TL" = 1234.56 lira
+- ÖNEMLI: Bazı fişlerde tutarın önünde yıldız (*) işareti bulunur → "*350,00" = 350.00 lira (yıldızı yoksay)
+- Bazı fişlerde "350,00 TL" şeklinde altta büyük puntoda da tekrar yazar — bu en güvenilir değerdir
 - Para birimi: TL, TRY, ₺ hepsi Türk Lirası demektir
 - Saat + tarih birlikte olabilir: "30.04.2026 14:35"
 
@@ -130,10 +132,18 @@ KATEGORİ SEÇENEKLERI (yalnızca bunlardan birini seç):
       parsed = JSON.parse(objMatch[0])
     }
 
-    // Normalize amount: handle Turkish number format just in case model didn't
+    // Normalize amount: strip leading *, handle Turkish format (1.234,56 → 1234.56)
     if (typeof parsed.amount === "string") {
-      const amtStr = (parsed.amount as string).replace(/\./g, "").replace(",", ".")
+      const amtStr = (parsed.amount as string)
+        .replace(/^\*/, "")          // strip leading asterisk
+        .replace(/\./g, "")          // remove thousand separators
+        .replace(",", ".")           // decimal comma → dot
+        .trim()
       parsed.amount = parseFloat(amtStr) || null
+    }
+    // Also strip asterisk if model returned it as number string somehow
+    if (typeof parsed.amount === "number" && isNaN(parsed.amount)) {
+      parsed.amount = null
     }
 
     // Validate and clamp

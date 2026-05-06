@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
-import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, Sparkles, ScanLine, CheckCheck, AlertCircle, Camera, Image as ImageIcon } from "lucide-react"
+import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, Sparkles, ScanLine, CheckCheck, AlertCircle, Camera, Image as ImageIcon, Trash2 } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Source, Transaction } from "@/types/database"
 import { SourceIcon } from "@/components/sources/source-icon"
@@ -303,6 +303,17 @@ export function TransactionModal() {
       toast.success("İşlem eklendi 🎉")
     }
 
+    qc.invalidateQueries({ queryKey: ["transactions"] })
+    qc.invalidateQueries({ queryKey: ["summary"] })
+    closeTransactionModal()
+  }
+
+  async function deleteTransaction() {
+    if (!editingTransactionId) return
+    const supabase = createClient()
+    const { error } = await supabase.from("transactions").delete().eq("id", editingTransactionId)
+    if (error) { toast.error("Silinemedi"); return }
+    toast.success("İşlem silindi")
     qc.invalidateQueries({ queryKey: ["transactions"] })
     qc.invalidateQueries({ queryKey: ["summary"] })
     closeTransactionModal()
@@ -727,6 +738,18 @@ export function TransactionModal() {
                     <Button type="submit" variant="primary" size="lg" loading={isSubmitting} className="w-full">
                       {editingTransactionId ? "Güncelle" : "Kaydet"} ✓
                     </Button>
+
+                    {/* Delete — only in edit mode */}
+                    {editingTransactionId && (
+                      <button
+                        type="button"
+                        onClick={deleteTransaction}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-[14px] text-sm font-medium text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/15"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        İşlemi Sil
+                      </button>
+                    )}
                   </form>
                 </div>
               </div>

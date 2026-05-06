@@ -67,7 +67,7 @@ export function PendingActions({ transactions, currency }: PendingActionsProps) 
                   <p className="text-xs font-medium text-white/80 truncate">
                     {tx.description || tx.source?.name || (isIncome ? "Gelir" : "Gider")}
                   </p>
-                  <span className={cn("text-sm font-bold tabular-nums font-mono flex-shrink-0", isIncome ? "text-purple-400" : "text-orange-400")}>
+                  <span className={cn("text-sm font-bold tabular-nums flex-shrink-0", isIncome ? "text-purple-400" : "text-orange-400")}>
                     {isIncome ? "+" : "-"}{formatCurrency(tx.amount, currency)}
                   </span>
                 </div>

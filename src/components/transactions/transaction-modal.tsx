@@ -571,7 +571,7 @@ export function TransactionModal() {
                                     {scanResult.amount !== null && (
                                       <p className="text-xs text-white/60">
                                         <span className="text-white/35">Tutar: </span>
-                                        <span className="font-mono font-semibold text-white/90">
+                                        <span className="font-semibold text-white/90">
                                           {scanResult.amount?.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL
                                         </span>
                                       </p>
@@ -703,11 +703,11 @@ export function TransactionModal() {
                     <div>
                       <p className="text-[11px] text-white/40 uppercase tracking-wider mb-2">Tutar</p>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-xl font-mono">₺</span>
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-xl">₺</span>
                         <input
                           {...register("amount", { valueAsNumber: true })}
                           type="number" step="0.01" placeholder="0,00"
-                          className="w-full pl-9 pr-4 py-4 rounded-[14px] bg-white/[0.05] border border-white/[0.08] text-white text-2xl sm:text-3xl font-bold font-mono placeholder:text-white/15 focus:outline-none focus:border-[#E50001]/40 focus:bg-white/[0.07] transition-all"
+                          className="w-full pl-9 pr-4 py-4 rounded-[14px] bg-white/[0.05] border border-white/[0.08] text-white text-2xl sm:text-3xl font-bold placeholder:text-white/15 focus:outline-none focus:border-[#E50001]/40 focus:bg-white/[0.07] transition-all"
                         />
                       </div>
                       {errors.amount && <p className="text-xs text-red-400 mt-1">{errors.amount.message}</p>}

@@ -344,7 +344,7 @@ export function CsvImporter({ sources, currency }: Props) {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
                             <p className="text-xs text-white/70 truncate">{row.description}</p>
-                            <p className={cn("text-xs font-mono font-semibold flex-shrink-0", row.type === "income" ? "text-green-400" : "text-red-400")}>
+                            <p className={cn("text-xs font-semibold flex-shrink-0", row.type === "income" ? "text-green-400" : "text-red-400")}>
                               {row.type === "income" ? "+" : "-"}{row.amount.toLocaleString("tr-TR")}
                             </p>
                           </div>

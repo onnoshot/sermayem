@@ -227,7 +227,7 @@ export function PendingCalendar({ transactions, currency }: Props) {
                       </div>
 
                       <span className={cn(
-                        "text-sm font-bold tabular-nums font-mono flex-shrink-0 mr-1",
+                        "text-sm font-bold tabular-nums flex-shrink-0 mr-1",
                         isIncome ? "text-green-400" : "text-red-400",
                         isPending && "opacity-60",
                       )}>

@@ -51,7 +51,7 @@ export default async function PendingPage() {
               <TrendingUp className="h-3.5 w-3.5 text-green-400 flex-shrink-0" />
               <span className="text-[10px] sm:text-xs text-white/40 truncate">Bekl. Gelir</span>
             </div>
-            <p className="text-base sm:text-lg font-bold text-green-400 tabular-nums font-mono truncate">
+            <p className="text-base sm:text-lg font-bold text-green-400 tabular-nums truncate">
               {formatCurrencyCompact(totalIn, currency)}
             </p>
             <p className="text-[10px] text-white/30 mt-0.5">{pendingIncome.length} işlem</p>
@@ -62,7 +62,7 @@ export default async function PendingPage() {
               <TrendingDown className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
               <span className="text-[10px] sm:text-xs text-white/40 truncate">Bekl. Gider</span>
             </div>
-            <p className="text-base sm:text-lg font-bold text-red-400 tabular-nums font-mono truncate">
+            <p className="text-base sm:text-lg font-bold text-red-400 tabular-nums truncate">
               {formatCurrencyCompact(totalOut, currency)}
             </p>
             <p className="text-[10px] text-white/30 mt-0.5">{pendingExpense.length} işlem</p>
@@ -70,7 +70,7 @@ export default async function PendingPage() {
 
           <GlassSurface className="p-3 sm:p-4">
             <p className="text-[10px] sm:text-xs text-white/40 mb-1.5">Net Beklenti</p>
-            <p className={`text-base sm:text-lg font-bold tabular-nums font-mono truncate ${net >= 0 ? "text-green-400" : "text-red-400"}`}>
+            <p className={`text-base sm:text-lg font-bold tabular-nums truncate ${net >= 0 ? "text-green-400" : "text-red-400"}`}>
               {net >= 0 ? "+" : ""}{formatCurrencyCompact(net, currency)}
             </p>
             <p className="text-[10px] text-white/30 mt-0.5">Gelir / Gider</p>

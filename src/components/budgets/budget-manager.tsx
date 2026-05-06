@@ -89,7 +89,7 @@ export function BudgetManager({ budgets, sources, currency }: Props) {
           ].map(({ label, value, color }) => (
             <GlassSurface key={label} className="p-3 sm:p-4">
               <p className="text-[10px] text-white/40 mb-1">{label}</p>
-              <p className={`text-sm font-bold tabular-nums font-mono truncate ${color}`}>{formatCurrencyCompact(value, currency)}</p>
+              <p className={`text-sm font-bold tabular-nums truncate ${color}`}>{formatCurrencyCompact(value, currency)}</p>
             </GlassSurface>
           ))}
         </div>
@@ -143,7 +143,7 @@ export function BudgetManager({ budgets, sources, currency }: Props) {
                       {/* Amounts */}
                       <div className="flex justify-between text-xs mb-2">
                         <span className="text-white/40">
-                          <span className="font-mono tabular-nums font-medium" style={{ color: barColor }}>
+                          <span className="tabular-nums font-medium" style={{ color: barColor }}>
                             {formatCurrencyCompact(budget.spent, currency)}
                           </span>
                           <span className="text-white/25"> / {formatCurrencyCompact(budget.monthly_limit, currency)}</span>

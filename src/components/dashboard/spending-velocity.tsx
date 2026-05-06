@@ -47,13 +47,13 @@ export function SpendingVelocity({ currentMonthExpense, lastMonthExpense, curren
       {/* Main numbers */}
       <div className="flex items-end justify-between mb-3">
         <div>
-          <p className="text-xl font-bold font-mono tabular-nums text-white">
+          <p className="text-xl font-bold tabular-nums text-white">
             {formatCurrencyCompact(currentMonthExpense, currency)}
           </p>
           <p className="text-xs text-white/35 mt-0.5">bu ay harcandı</p>
         </div>
         <div className="text-right">
-          <p className="text-sm font-semibold font-mono tabular-nums text-white/60">
+          <p className="text-sm font-semibold tabular-nums text-white/60">
             {formatCurrencyCompact(projected, currency)}
           </p>
           <p className="text-xs text-white/30 mt-0.5">ay sonu tahmini</p>

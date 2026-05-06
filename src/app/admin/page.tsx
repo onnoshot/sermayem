@@ -166,7 +166,7 @@ export default async function AdminPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs text-white/50 font-mono">{u.email}</td>
+                      <td className="px-4 py-3 text-xs text-white/50">{u.email}</td>
                       <td className="px-4 py-3 text-sm text-white/60">{p?.age || "-"}</td>
                       <td className="px-4 py-3 text-xs text-white/50">{p?.gender ? genderLabels[p.gender] : "-"}</td>
                       <td className="px-4 py-3 text-xs text-white/50">{p?.city || "-"}</td>
@@ -176,7 +176,7 @@ export default async function AdminPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-white/70 tabular-nums">{u.txCount}</td>
-                      <td className="px-4 py-3 text-sm font-mono tabular-nums text-white/70">
+                      <td className="px-4 py-3 text-sm tabular-nums text-white/70">
                         {u.totalVolume > 0 ? formatCurrencyCompact(u.totalVolume, (p?.currency as "TRY") || "TRY") : "-"}
                       </td>
                       <td className="px-4 py-3 text-xs text-white/40 whitespace-nowrap">{fmtDate(u.created_at)}</td>

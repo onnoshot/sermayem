@@ -43,14 +43,14 @@ export function DashboardHeader({ greeting, firstName, avatarEmoji, date, monthI
             <TrendingUp className="h-3 w-3 text-green-400 flex-shrink-0" />
             <div>
               <p className="text-[9px] text-white/30 uppercase tracking-wider leading-none mb-0.5">Gelir</p>
-              <p className="text-xs font-bold font-mono text-green-400 tabular-nums">{formatCurrency(monthIncome, currency)}</p>
+              <p className="text-xs font-bold text-green-400 tabular-nums">{formatCurrency(monthIncome, currency)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 rounded-[12px] border border-white/[0.07] bg-white/[0.03]">
             <TrendingDown className="h-3 w-3 text-red-400 flex-shrink-0" />
             <div>
               <p className="text-[9px] text-white/30 uppercase tracking-wider leading-none mb-0.5">Gider</p>
-              <p className="text-xs font-bold font-mono text-red-400 tabular-nums">{formatCurrency(monthExpense, currency)}</p>
+              <p className="text-xs font-bold text-red-400 tabular-nums">{formatCurrency(monthExpense, currency)}</p>
             </div>
           </div>
         </div>

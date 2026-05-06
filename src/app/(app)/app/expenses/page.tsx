@@ -87,7 +87,7 @@ export default async function ExpensesPage() {
             <GlassSurface key={label} className="p-3 sm:p-4">
               <p className="text-[10px] sm:text-xs text-white/40 mb-1">{label}</p>
               {value !== null && (
-                <p className={`text-sm sm:text-base font-bold tabular-nums font-mono truncate ${color}`}>
+                <p className={`text-sm sm:text-base font-bold tabular-nums truncate ${color}`}>
                   {formatCurrencyCompact(value, currency)}
                 </p>
               )}

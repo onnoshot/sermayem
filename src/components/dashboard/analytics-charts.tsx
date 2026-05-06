@@ -60,7 +60,7 @@ export function AnalyticsCharts({ monthlyData, transactions, currency }: Analyti
                   <div className="flex-1">
                     <div className="flex justify-between mb-1">
                       <span className="text-xs text-white/70">{src.name}</span>
-                      <span className="text-xs font-mono tabular-nums text-white/60">{formatCurrency(src.total, currency)}</span>
+                      <span className="text-xs tabular-nums text-white/60">{formatCurrency(src.total, currency)}</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-white/[0.06]">
                       <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(src.total / max) * 100}%`, background: src.color }} />

@@ -96,7 +96,7 @@ export function TransactionList({ transactions, currency = "TRY", showEdit = tru
 
               {/* Amount — compact in list view */}
               <span className={cn(
-                "text-[14px] font-bold tabular-nums font-mono flex-shrink-0",
+                "text-[14px] font-bold tabular-nums flex-shrink-0",
                 isIncome ? "text-green-400" : "text-red-400",
                 isPending && "opacity-55"
               )}>

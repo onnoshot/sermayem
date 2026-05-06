@@ -67,7 +67,7 @@ export function SchemaSetupBanner() {
       </div>
 
       <div className="relative">
-        <pre className="text-[11px] text-white/50 bg-white/[0.04] rounded-[12px] p-4 overflow-x-auto font-mono leading-relaxed max-h-48 overflow-y-auto border border-white/[0.06]">
+        <pre className="text-[11px] text-white/50 bg-white/[0.04] rounded-[12px] p-4 overflow-x-auto leading-relaxed max-h-48 overflow-y-auto border border-white/[0.06]">
           {MIGRATION_SQL}
         </pre>
         <button

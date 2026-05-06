@@ -70,7 +70,7 @@ export default async function AnalyticsPage() {
           ].map(({ label, value, pct, color }) => (
             <GlassSurface key={label} className="p-3 sm:p-4">
               <p className="text-[10px] sm:text-xs text-white/40 mb-1">{label}</p>
-              <p className={`text-base sm:text-lg font-bold tabular-nums font-mono ${color}`}>
+              <p className={`text-base sm:text-lg font-bold tabular-nums ${color}`}>
                 {pct !== undefined ? `%${pct.toFixed(1)}` : formatCurrency(value || 0, currency)}
               </p>
             </GlassSurface>

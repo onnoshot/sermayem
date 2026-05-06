@@ -41,7 +41,7 @@ export function CategoryBreakdown({ stats, total, currency, type }: Props) {
       <div className="flex items-end justify-between mb-4">
         <div>
           <p className="text-[11px] text-white/35 uppercase tracking-widest mb-1">Kaynak Dağılımı</p>
-          <p className="text-xl font-bold tabular-nums font-mono" style={{ color: accentColor }}>
+          <p className="text-xl font-bold tabular-nums" style={{ color: accentColor }}>
             {formatCurrency(total, currency)}
           </p>
         </div>
@@ -88,7 +88,7 @@ export function CategoryBreakdown({ stats, total, currency, type }: Props) {
                 >
                   {stat.percentage < 1 ? "<1" : Math.round(stat.percentage)}%
                 </span>
-                <span className="text-sm font-bold tabular-nums font-mono text-white/85 w-24 text-right">
+                <span className="text-sm font-bold tabular-nums text-white/85 w-24 text-right">
                   {formatCurrencyCompact(stat.total, currency)}
                 </span>
               </div>

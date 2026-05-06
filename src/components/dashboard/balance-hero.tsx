@@ -45,7 +45,7 @@ export function BalanceHero({
             <p className="text-[11px] text-white/35 uppercase tracking-[0.2em] mb-3">Net Bakiye</p>
 
             <div className="mb-6">
-              <span className={`text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-none font-mono ${isPositive ? "text-white" : "text-red-400"}`}>
+              <span className={`text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-none ${isPositive ? "text-white" : "text-red-400"}`}>
                 <AnimatedNumber
                   value={Math.abs(net)}
                   format={(v) => {
@@ -65,7 +65,7 @@ export function BalanceHero({
                     <TrendingUp className="h-3.5 w-3.5 text-green-400" />
                     <span className="text-xs text-green-400 font-medium">Gelir</span>
                   </div>
-                  <span className="text-xs font-mono text-green-400">{formatCurrency(totalIncome, currency)}</span>
+                  <span className="text-xs text-green-400">{formatCurrency(totalIncome, currency)}</span>
                 </div>
                 <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
                   <motion.div
@@ -83,7 +83,7 @@ export function BalanceHero({
                     <TrendingDown className="h-3.5 w-3.5 text-red-400" />
                     <span className="text-xs text-red-400 font-medium">Gider</span>
                   </div>
-                  <span className="text-xs font-mono text-red-400">{formatCurrency(totalExpense, currency)}</span>
+                  <span className="text-xs text-red-400">{formatCurrency(totalExpense, currency)}</span>
                 </div>
                 <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
                   <motion.div
@@ -113,11 +113,11 @@ export function BalanceHero({
                 <Rocket className="h-3.5 w-3.5 text-yellow-400" />
                 <p className="text-[11px] text-white/40 uppercase tracking-wider">Ay Sonu Tahmini</p>
               </div>
-              <p className={`text-xl font-black font-mono tabular-nums ${netPending >= 0 ? "text-yellow-400" : "text-red-400"}`}>
+              <p className={`text-xl font-black tabular-nums ${netPending >= 0 ? "text-yellow-400" : "text-red-400"}`}>
                 {netPending >= 0 ? "+" : ""}{formatCurrency(netPending, currency)}
               </p>
               <p className="text-[10px] text-white/25 mt-1">Bekleyenler tamamlandığında</p>
-              <p className={`text-xs font-mono mt-2 ${projectedNet >= 0 ? "text-white/60" : "text-red-400/60"}`}>
+              <p className={`text-xs mt-2 ${projectedNet >= 0 ? "text-white/60" : "text-red-400/60"}`}>
                 Toplam: {formatCurrency(projectedNet, currency)}
               </p>
             </motion.div>

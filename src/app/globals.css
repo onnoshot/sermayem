@@ -80,8 +80,6 @@ body {
   background: var(--c-bg);
   color: var(--c-text);
   font-family: var(--font-family-sans);
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
   min-height: 100vh;
   min-height: 100dvh;
   transition: background 0.3s ease, color 0.2s ease;

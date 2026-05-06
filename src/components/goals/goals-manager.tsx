@@ -113,7 +113,7 @@ export function GoalsManager({ goals, currency }: Props) {
           ].map(({ label, value, color }) => (
             <GlassSurface key={label} className="p-3 sm:p-4">
               <p className="text-[10px] text-white/40 mb-1">{label}</p>
-              <p className={`text-sm font-bold tabular-nums font-mono truncate ${color}`}>{formatCurrencyCompact(value, currency)}</p>
+              <p className={`text-sm font-bold tabular-nums truncate ${color}`}>{formatCurrencyCompact(value, currency)}</p>
             </GlassSurface>
           ))}
         </div>
@@ -155,10 +155,10 @@ export function GoalsManager({ goals, currency }: Props) {
 
                   {/* Amounts */}
                   <div className="flex justify-between text-xs mb-2">
-                    <span className="font-mono tabular-nums font-semibold" style={{ color: done ? "#22C55E" : goal.color }}>
+                    <span className="tabular-nums font-semibold" style={{ color: done ? "#22C55E" : goal.color }}>
                       {formatCurrencyCompact(goal.current_amount, currency)}
                     </span>
-                    <span className="text-white/30 font-mono tabular-nums">
+                    <span className="text-white/30 tabular-nums">
                       {formatCurrencyCompact(goal.target_amount, currency)}
                     </span>
                   </div>

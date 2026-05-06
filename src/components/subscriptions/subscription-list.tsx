@@ -103,14 +103,14 @@ export function SubscriptionList({ subscriptions, dismissedCount, currency }: Pr
       <div className="grid grid-cols-2 gap-3">
         <GlassSurface className="p-4">
           <p className="text-[11px] text-white/35 mb-1">Aylık Toplam</p>
-          <p className="text-xl font-bold tabular-nums text-white font-mono">
+          <p className="text-xl font-bold tabular-nums text-white">
             {formatCurrency(totalMonthly, currency)}
           </p>
           <p className="text-[11px] text-white/25 mt-1">{optimisticSubs.length} abonelik</p>
         </GlassSurface>
         <GlassSurface className="p-4">
           <p className="text-[11px] text-white/35 mb-1">Yıllık Tahmini</p>
-          <p className="text-xl font-bold tabular-nums text-orange-400 font-mono">
+          <p className="text-xl font-bold tabular-nums text-orange-400">
             {formatCurrency(totalYearly, currency)}
           </p>
           <p className="text-[11px] text-white/25 mt-1">yıllık maliyet</p>
@@ -205,7 +205,7 @@ function SubscriptionCard({
                 )}
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-sm font-bold tabular-nums text-white font-mono">
+                <p className="text-sm font-bold tabular-nums text-white">
                   {formatCurrency(sub.amount, currency)}
                 </p>
                 <p className="text-[10px] text-white/35 mt-0.5">{sub.periodLabel.toLowerCase()}</p>

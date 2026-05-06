@@ -50,7 +50,7 @@ export function KpiCard({ label, value, currency, icon, gradient, href, index, s
           <Icon className={`h-4 w-4 mb-3 ${iconColor} opacity-70`} strokeWidth={1.5} />
 
           {/* Value */}
-          <p className="text-[19px] font-black text-white tabular-nums font-mono leading-none">
+          <p className="text-[19px] font-black text-white tabular-nums leading-none">
             {showSign && value > 0 && <span className="text-yellow-400">+</span>}
             {showSign && value < 0 && <span className="text-red-400">-</span>}
             <AnimatedNumber

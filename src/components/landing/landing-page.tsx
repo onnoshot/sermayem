@@ -614,7 +614,7 @@ export function LandingPage() {
                 transition={{ delay: i * 0.1, duration: 0.45 }}
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[10px] font-black text-white/18 font-mono">{item.step}</span>
+                  <span className="text-[10px] font-black text-white/18">{item.step}</span>
                   <div className="h-px flex-1 bg-white/[0.055]" />
                 </div>
                 <div className="h-10 mb-3">

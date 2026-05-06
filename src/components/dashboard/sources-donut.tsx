@@ -61,7 +61,7 @@ export function SourcesDonut({ transactions, sources, currency }: SourcesDonutPr
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-0.5">
                     <span className="text-xs text-white/60 truncate">{d.name}</span>
-                    <span className="text-xs font-mono text-white/70 tabular-nums">{((d.value / total) * 100).toFixed(0)}%</span>
+                    <span className="text-xs text-white/70 tabular-nums">{((d.value / total) * 100).toFixed(0)}%</span>
                   </div>
                   <div className="h-0.5 rounded-full bg-white/[0.06]">
                     <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(d.value / total) * 100}%`, background: d.color }} />

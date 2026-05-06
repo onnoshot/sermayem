@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { StaggerChildren, StaggerItem } from "@/components/motion/stagger-children"
 import { GoalsManager } from "@/components/goals/goals-manager"
+import { SchemaSetupBanner } from "@/components/ui/schema-setup-banner"
 import type { SavingsGoal, Currency } from "@/types/database"
 import { Target } from "lucide-react"
 
@@ -12,13 +13,14 @@ export default async function GoalsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
-  const [{ data: profileData }, { data: goalsData }] = await Promise.all([
+  const [{ data: profileData }, goalsRes] = await Promise.all([
     supabase.from("profiles").select("currency").eq("id", user.id).single(),
     supabase.from("savings_goals").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
   ])
 
+  const tableReady = !(goalsRes.error?.code === "42P01")
   const currency = ((profileData?.currency) || "TRY") as Currency
-  const goals = (goalsData || []) as SavingsGoal[]
+  const goals = (goalsRes.data || []) as SavingsGoal[]
 
   return (
     <StaggerChildren className="space-y-6">
@@ -35,7 +37,10 @@ export default async function GoalsPage() {
       </StaggerItem>
 
       <StaggerItem>
-        <GoalsManager goals={goals} currency={currency} />
+        {!tableReady
+          ? <SchemaSetupBanner />
+          : <GoalsManager goals={goals} currency={currency} />
+        }
       </StaggerItem>
     </StaggerChildren>
   )

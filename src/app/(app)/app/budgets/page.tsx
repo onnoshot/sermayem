@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { StaggerChildren, StaggerItem } from "@/components/motion/stagger-children"
 import { BudgetManager } from "@/components/budgets/budget-manager"
+import { SchemaSetupBanner } from "@/components/ui/schema-setup-banner"
 import type { Budget, Source, Currency } from "@/types/database"
 import { Wallet } from "lucide-react"
 import { startOfMonth, endOfMonth } from "date-fns"
@@ -17,7 +18,7 @@ export default async function BudgetsPage() {
   const monthStart = startOfMonth(now).toISOString().split("T")[0]
   const monthEnd = endOfMonth(now).toISOString().split("T")[0]
 
-  const [{ data: profileData }, { data: budgetData }, { data: srcData }, { data: txData }] = await Promise.all([
+  const [{ data: profileData }, budgetRes, { data: srcData }, { data: txData }] = await Promise.all([
     supabase.from("profiles").select("currency").eq("id", user.id).single(),
     supabase.from("budgets").select("*, source:sources(*)").eq("user_id", user.id),
     supabase.from("sources").select("*").eq("user_id", user.id).eq("archived", false),
@@ -30,8 +31,9 @@ export default async function BudgetsPage() {
       .lte("occurred_on", monthEnd),
   ])
 
+  const tableReady = !(budgetRes.error?.code === "42P01")
   const currency = ((profileData?.currency) || "TRY") as Currency
-  const budgets = (budgetData || []) as (Budget & { source: Source | null })[]
+  const budgets = (budgetRes.data || []) as (Budget & { source: Source | null })[]
   const sources = (srcData || []) as Source[]
 
   // Build spending map for this month
@@ -62,7 +64,10 @@ export default async function BudgetsPage() {
       </StaggerItem>
 
       <StaggerItem>
-        <BudgetManager budgets={budgetsWithSpending} sources={sources} currency={currency} />
+        {!tableReady
+          ? <SchemaSetupBanner />
+          : <BudgetManager budgets={budgetsWithSpending} sources={sources} currency={currency} />
+        }
       </StaggerItem>
     </StaggerChildren>
   )

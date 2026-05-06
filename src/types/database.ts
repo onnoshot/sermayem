@@ -59,6 +59,13 @@ export interface Transaction {
   source?: Source
 }
 
+export interface DismissedSubscription {
+  id: string
+  user_id: string
+  sub_key: string
+  dismissed_at: string
+}
+
 export interface MonthlySummary {
   year: number
   month: number

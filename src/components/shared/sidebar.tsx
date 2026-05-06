@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import {
   LayoutDashboard, TrendingUp, TrendingDown, Clock, Layers,
-  BarChart3, User, Settings, LogOut, Plus, ChevronLeft, ChevronRight, X,
+  BarChart3, User, Settings, LogOut, Plus, ChevronLeft, ChevronRight, X, RefreshCw,
 } from "lucide-react"
 import { useUIStore } from "@/lib/stores/ui-store"
 import type { Profile } from "@/types/database"
@@ -20,6 +20,7 @@ const NAV = [
   { href: "/app/pending", label: "Bekleyenler", icon: Clock, color: "from-purple-500 to-violet-400", glow: "rgba(168,85,247,0.3)" },
   { href: "/app/sources", label: "Kaynaklar", icon: Layers, color: "from-blue-500 to-cyan-400", glow: "rgba(59,130,246,0.3)" },
   { href: "/app/analytics", label: "Analiz", icon: BarChart3, color: "from-pink-500 to-fuchsia-400", glow: "rgba(236,72,153,0.3)" },
+  { href: "/app/subscriptions", label: "Abonelikler", icon: RefreshCw, color: "from-teal-500 to-cyan-400", glow: "rgba(20,184,166,0.3)" },
 ]
 
 const BOTTOM_NAV = [

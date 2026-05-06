@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { transactionSchema, type TransactionInput } from "@/lib/validations/transaction"
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
-import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, GripHorizontal } from "lucide-react"
+import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, GripHorizontal, Sparkles } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Source, Transaction } from "@/types/database"
 import { format } from "date-fns"
@@ -20,6 +20,9 @@ export function TransactionModal() {
   const qc = useQueryClient()
   const [sources, setSources] = useState<Source[]>([])
   const [editData, setEditData] = useState<Transaction | null>(null)
+  const [aiSuggestion, setAiSuggestion] = useState<{ sourceId: string; sourceName: string; sourceEmoji: string; confidence: string } | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Lock body scroll on iOS when modal is open
   useEffect(() => {
@@ -53,6 +56,39 @@ export function TransactionModal() {
   const watchType = watch("type")
   const watchStatus = watch("status")
   const watchRecurring = watch("is_recurring")
+  const watchSourceId = watch("source_id")
+  const watchDescription = watch("description")
+
+  const fetchSuggestion = useCallback(async (desc: string, type: string, srcs: Source[]) => {
+    if (desc.trim().length < 3 || !srcs.length) { setAiSuggestion(null); return }
+    setAiLoading(true)
+    try {
+      const filtered = srcs.filter((s) => s.type === type || s.type === "both")
+      const res = await fetch("/api/suggest-source", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: desc, type, sources: filtered.map((s) => ({ id: s.id, name: s.name, emoji: s.emoji })) }),
+      })
+      const json = await res.json()
+      if (json.sourceId) setAiSuggestion(json)
+      else setAiSuggestion(null)
+    } catch {
+      setAiSuggestion(null)
+    } finally {
+      setAiLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (editingTransactionId) { setAiSuggestion(null); return }
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    setAiSuggestion(null)
+    debounceRef.current = setTimeout(() => {
+      if (watchDescription) fetchSuggestion(watchDescription, watchType, sources)
+    }, 650)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchDescription, watchType])
 
   useEffect(() => {
     async function load() {
@@ -249,7 +285,40 @@ export function TransactionModal() {
 
                     {/* Description + Date */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <Input label="Açıklama" placeholder="Açıklama..." {...register("description")} />
+                      <div className="space-y-1.5">
+                        <Input label="Açıklama" placeholder="Açıklama..." {...register("description")} />
+                        <AnimatePresence>
+                          {(aiLoading || (aiSuggestion && !watchSourceId)) && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -4, height: 0 }}
+                              animate={{ opacity: 1, y: 0, height: "auto" }}
+                              exit={{ opacity: 0, y: -4, height: 0 }}
+                              transition={{ duration: 0.18 }}
+                              className="overflow-hidden"
+                            >
+                              {aiLoading ? (
+                                <div className="flex items-center gap-1.5 px-2 py-1">
+                                  <Sparkles className="h-3 w-3 text-purple-400 animate-pulse" />
+                                  <span className="text-[11px] text-white/30">Kategori öneriliyor...</span>
+                                </div>
+                              ) : aiSuggestion ? (
+                                <button
+                                  type="button"
+                                  onClick={() => { setValue("source_id", aiSuggestion.sourceId); setAiSuggestion(null) }}
+                                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-purple-500/10 transition-colors group"
+                                >
+                                  <Sparkles className="h-3 w-3 text-purple-400 flex-shrink-0" />
+                                  <span className="text-[11px] text-white/40 group-hover:text-white/60 transition-colors">
+                                    <span className="mr-0.5">{aiSuggestion.sourceEmoji}</span>
+                                    <span className="font-medium text-purple-300">{aiSuggestion.sourceName}</span>
+                                    <span className="ml-1">önerildi — seç</span>
+                                  </span>
+                                </button>
+                              ) : null}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
                       <Input
                         label={watchStatus === "pending" ? "Vade Tarihi" : "Tarih"}
                         type="date"

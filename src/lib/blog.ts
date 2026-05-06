@@ -1070,12 +1070,16 @@ export const posts: BlogPost[] = [
   },
 ]
 
+import { extraPosts } from "./blog-posts-extra"
+
+const allPosts = [...posts, ...extraPosts]
+
 export function getPost(slug: string): BlogPost | undefined {
-  return posts.find((p) => p.slug === slug)
+  return allPosts.find((p) => p.slug === slug)
 }
 
 export function getAllPosts(): BlogPost[] {
-  return [...posts].sort(
+  return [...allPosts].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   )
 }
@@ -1084,4 +1088,4 @@ export function getPostsByCategory(category: string): BlogPost[] {
   return getAllPosts().filter((p) => p.category === category)
 }
 
-export const categories = [...new Set(posts.map((p) => p.category))]
+export const categories = [...new Set(allPosts.map((p) => p.category))]

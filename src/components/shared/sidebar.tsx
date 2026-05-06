@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import {
   LayoutDashboard, TrendingUp, TrendingDown, Clock, Layers,
   BarChart3, User, Settings, LogOut, Plus, ChevronLeft, ChevronRight, X,
-  Wallet, Target, Upload, Crown,
+  Wallet, Target, Crown, Sparkles,
 } from "lucide-react"
 import { useUIStore } from "@/lib/stores/ui-store"
 import type { Profile } from "@/types/database"
@@ -26,8 +26,6 @@ const NAV = [
 ]
 
 const BOTTOM_NAV = [
-  { href: "/app/premium", label: "Pro Üyelik", icon: Crown },
-  { href: "/app/import", label: "CSV Aktar", icon: Upload },
   { href: "/app/profile", label: "Profil", icon: User },
   { href: "/app/settings", label: "Ayarlar", icon: Settings },
 ]
@@ -39,7 +37,7 @@ interface SidebarProps {
 export function Sidebar({ profile }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { sidebarOpen, toggleSidebar, setSidebarOpen, openAddTransaction } = useUIStore()
+  const { sidebarOpen, toggleSidebar, setSidebarOpen, openAddTransaction, openProModal } = useUIStore()
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -217,6 +215,32 @@ export function Sidebar({ profile }: SidebarProps) {
             </div>
           </Link>
         ))}
+
+        {/* Pro upgrade button */}
+        <motion.button
+          onClick={() => { openProModal(); isMobile && setSidebarOpen(false) }}
+          whileHover={{ scale: 1.02, boxShadow: "0 0 24px rgba(245,158,11,0.35)" }}
+          whileTap={{ scale: 0.97 }}
+          className={cn(
+            "w-full flex items-center gap-2.5 rounded-[12px] font-bold text-[13px] transition-all mb-1",
+            sidebarOpen ? "px-3.5 py-2.5 justify-start" : "h-11 w-11 justify-center mx-auto px-0"
+          )}
+          style={{
+            background: "linear-gradient(135deg, rgba(252,211,77,0.14) 0%, rgba(245,158,11,0.08) 100%)",
+            border: "1px solid rgba(245,158,11,0.28)",
+            boxShadow: "0 0 12px rgba(245,158,11,0.1)",
+          }}
+        >
+          <div className="h-5 w-5 flex items-center justify-center flex-shrink-0">
+            {sidebarOpen
+              ? <Sparkles className="h-4 w-4 text-amber-400" />
+              : <Crown className="h-4 w-4 text-amber-400" />
+            }
+          </div>
+          {sidebarOpen && (
+            <span style={{ color: "#FCD34D" }}>Pro Paket Al</span>
+          )}
+        </motion.button>
 
         {/* Profile card */}
         <div className={cn(

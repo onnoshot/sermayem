@@ -8,6 +8,7 @@ interface UIState {
   prefillDate: string | null
   sourceModalOpen: boolean
   editingSourceId: string | null
+  proModalOpen: boolean
   setSidebarOpen: (v: boolean) => void
   toggleSidebar: () => void
   openAddTransaction: () => void
@@ -17,6 +18,8 @@ interface UIState {
   openAddSource: () => void
   openEditSource: (id: string) => void
   closeSourceModal: () => void
+  openProModal: () => void
+  closeProModal: () => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -26,6 +29,7 @@ export const useUIStore = create<UIState>((set) => ({
   prefillDate: null,
   sourceModalOpen: false,
   editingSourceId: null,
+  proModalOpen: false,
   setSidebarOpen: (v) => set({ sidebarOpen: v }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   openAddTransaction: () => set({ transactionModalOpen: true, editingTransactionId: null, prefillDate: null }),
@@ -35,4 +39,6 @@ export const useUIStore = create<UIState>((set) => ({
   openAddSource: () => set({ sourceModalOpen: true, editingSourceId: null }),
   openEditSource: (id) => set({ sourceModalOpen: true, editingSourceId: id }),
   closeSourceModal: () => set({ sourceModalOpen: false, editingSourceId: null }),
+  openProModal: () => set({ proModalOpen: true }),
+  closeProModal: () => set({ proModalOpen: false }),
 }))

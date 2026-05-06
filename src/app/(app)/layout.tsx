@@ -5,6 +5,7 @@ import { AmbientBackground } from "@/components/ambient-background"
 import { Sidebar } from "@/components/shared/sidebar"
 import { AppShell } from "@/components/shared/app-shell"
 import { TutorialModal } from "@/components/tutorial-modal"
+import { ProUpgradeModal } from "@/components/premium/pro-upgrade-modal"
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -25,6 +26,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <Sidebar profile={profile} />
       <AppShell>{children}</AppShell>
       <TutorialModal />
+      <ProUpgradeModal />
     </div>
   )
 }

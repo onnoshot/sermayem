@@ -4,19 +4,207 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUIStore } from "@/lib/stores/ui-store"
 import {
-  X, Crown, ChevronRight, ChevronLeft, ArrowRight, Check,
-  Archive, FileText, BrainCircuit, BarChart3, Receipt, Share2, Zap,
+  X, Crown, ChevronRight, ChevronLeft, ArrowRight, Check, Zap,
+  Archive, FileText, BrainCircuit, BarChart3,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
-const FEATURES = [
-  { icon: Archive, label: "Fiş & Fatura Saklama", desc: "Sınırsız bulut depolama", color: "#60A5FA", border: "rgba(96,165,250,0.25)" },
-  { icon: FileText, label: "Aylık PDF Raporu", desc: "Otomatik muhasebe raporu", color: "#34D399", border: "rgba(52,211,153,0.25)" },
-  { icon: BrainCircuit, label: "AI Finansal Koç", desc: "Kişisel finansal danışman", color: "#A78BFA", border: "rgba(167,139,250,0.25)" },
-  { icon: BarChart3, label: "Gelişmiş Analitik", desc: "Yıllık trendler & tahminler", color: "#FB923C", border: "rgba(251,146,60,0.25)" },
-  { icon: Receipt, label: "KDV & Vergi Raporu", desc: "Freelancer'lar için hazır", color: "#FCD34D", border: "rgba(252,211,77,0.25)" },
-  { icon: Share2, label: "Muhasebeci Paylaşımı", desc: "Tek tık ile belgeni ilet", color: "#F472B6", border: "rgba(244,114,182,0.25)" },
+// ─── Mini animated illustrations ─────────────────────────────────────────────
+
+function IlluFis() {
+  return (
+    <svg viewBox="0 0 44 44" fill="none" className="w-full h-full">
+      <rect x="5" y="6" width="20" height="28" rx="2.5" fill="rgba(96,165,250,0.08)" stroke="rgba(96,165,250,0.35)" strokeWidth="1.2" />
+      <path d="M5 29 L8 33 L11 29 L14 33 L17 29 L20 33 L23 29 L25 33" fill="none" stroke="rgba(96,165,250,0.3)" strokeWidth="1" />
+      {[11, 15, 19, 23].map((y, i) => (
+        <motion.rect key={i} x="9" y={y} width={i % 2 === 0 ? 10 : 7} height="1.8" rx="0.9" fill="rgba(96,165,250,0.45)"
+          animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2, delay: i * 0.3, repeat: Infinity }} />
+      ))}
+      <motion.rect x="4" y="11" width="22" height="2" rx="1" fill="rgba(96,165,250,0.8)"
+        animate={{ y: [11, 28, 11] }} transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+        style={{ filter: "drop-shadow(0 0 4px rgba(96,165,250,0.8))" }} />
+      <motion.g animate={{ opacity: [0, 1, 1, 0], y: [4, 0, 0, 0] }} transition={{ duration: 3, repeat: Infinity, repeatDelay: 0.5 }}>
+        <ellipse cx="35" cy="14" rx="7" ry="5.5" fill="rgba(96,165,250,0.12)" stroke="rgba(96,165,250,0.45)" strokeWidth="1.2" />
+        <motion.path d="M32 14 L34.5 16.5 L38.5 11.5" fill="none" stroke="#60A5FA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+          initial={{ pathLength: 0 }} animate={{ pathLength: [0, 0, 1] }} transition={{ duration: 3, repeat: Infinity, repeatDelay: 0.5 }} />
+      </motion.g>
+      <motion.line x1="26" y1="18" x2="28" y2="15" stroke="rgba(96,165,250,0.4)" strokeWidth="1" strokeDasharray="2 2"
+        animate={{ opacity: [0, 1, 0] }} transition={{ duration: 3, repeat: Infinity, delay: 0.4 }} />
+    </svg>
+  )
+}
+
+function IlluPDF() {
+  const bars = [
+    { x: 9, maxH: 16, delay: 0 },
+    { x: 16, maxH: 22, delay: 0.15 },
+    { x: 23, maxH: 13, delay: 0.3 },
+    { x: 30, maxH: 19, delay: 0.45 },
+  ]
+  return (
+    <svg viewBox="0 0 44 44" fill="none" className="w-full h-full">
+      <rect x="4" y="4" width="24" height="30" rx="3" fill="rgba(52,211,153,0.08)" stroke="rgba(52,211,153,0.3)" strokeWidth="1.2" />
+      <rect x="4" y="4" width="9" height="5" rx="1" fill="rgba(52,211,153,0.3)" />
+      <text x="6" y="8.5" fontSize="3.5" fill="white" fontWeight="bold">PDF</text>
+      {[13, 16].map((y, i) => (
+        <rect key={i} x="8" y={y} width={i === 0 ? 15 : 11} height="1.5" rx="0.75" fill="rgba(52,211,153,0.2)" />
+      ))}
+      <line x1="8" y1="34" x2="36" y2="34" stroke="rgba(52,211,153,0.3)" strokeWidth="1" />
+      {bars.map((b, i) => (
+        <motion.rect key={i} x={b.x} y={34} width="4" height={0} rx="1" fill="#34D399"
+          animate={{ y: [34, 34 - b.maxH, 34], height: [0, b.maxH, 0] }}
+          transition={{ duration: 2.5, delay: b.delay, repeat: Infinity, repeatDelay: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
+          style={{ filter: "drop-shadow(0 0 3px rgba(52,211,153,0.5))" }} />
+      ))}
+    </svg>
+  )
+}
+
+function IlluAI() {
+  const nodes = [
+    { cx: 22, cy: 12 },
+    { cx: 10, cy: 24 },
+    { cx: 34, cy: 24 },
+    { cx: 16, cy: 36 },
+    { cx: 28, cy: 36 },
+  ]
+  const edges: [number, number][] = [[0,1],[0,2],[1,3],[1,4],[2,3],[2,4]]
+  return (
+    <svg viewBox="0 0 44 44" fill="none" className="w-full h-full">
+      {edges.map(([a, b], i) => (
+        <motion.line key={i} x1={nodes[a].cx} y1={nodes[a].cy} x2={nodes[b].cx} y2={nodes[b].cy}
+          stroke="rgba(167,139,250,0.3)" strokeWidth="1"
+          animate={{ opacity: [0.15, 0.7, 0.15] }} transition={{ duration: 2, delay: i * 0.25, repeat: Infinity }} />
+      ))}
+      {edges.slice(0,3).map(([a, b], i) => (
+        <motion.circle key={i} r="1.5" fill="#A78BFA"
+          animate={{ cx: [nodes[a].cx, nodes[b].cx, nodes[a].cx], cy: [nodes[a].cy, nodes[b].cy, nodes[a].cy], opacity: [0, 1, 0] }}
+          transition={{ duration: 1.6, delay: i * 0.6, repeat: Infinity, ease: "easeInOut" }} />
+      ))}
+      {nodes.map((n, i) => (
+        <motion.g key={i}>
+          <motion.circle cx={n.cx} cy={n.cy} r="4.5" fill="rgba(167,139,250,0.12)" stroke="rgba(167,139,250,0.4)" strokeWidth="1.2"
+            animate={{ r: [4.5, 5.5, 4.5] }} transition={{ duration: 2, delay: i * 0.4, repeat: Infinity }} />
+          {i === 0 && <circle cx={n.cx} cy={n.cy} r="2" fill="#A78BFA" style={{ filter: "drop-shadow(0 0 4px #A78BFA)" }} />}
+        </motion.g>
+      ))}
+    </svg>
+  )
+}
+
+function IlluAnalitik() {
+  const pts: [number, number][] = [[6,34],[12,28],[18,22],[24,25],[30,16],[36,10],[40,12]]
+  return (
+    <svg viewBox="0 0 44 44" fill="none" className="w-full h-full">
+      {[10,18,26,34].map(y => (
+        <line key={y} x1="6" y1={y} x2="40" y2={y} stroke="rgba(251,146,60,0.1)" strokeWidth="0.8" />
+      ))}
+      <line x1="6" y1="10" x2="6" y2="36" stroke="rgba(251,146,60,0.2)" strokeWidth="0.8" />
+      <line x1="6" y1="36" x2="40" y2="36" stroke="rgba(251,146,60,0.2)" strokeWidth="0.8" />
+      <motion.path d="M6 34 L12 28 L18 22 L24 25 L30 16 L36 10 L40 12 L40 36 Z"
+        fill="rgba(251,146,60,0.08)" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.5 }} />
+      <motion.path d="M6 34 L12 28 L18 22 L24 25 L30 16 L36 10 L40 12"
+        stroke="#FB923C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
+        initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+        transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 1.5, ease: "easeOut" }}
+        style={{ filter: "drop-shadow(0 0 4px rgba(251,146,60,0.6))" }} />
+      {pts.map(([x, y], i) => (
+        <motion.circle key={i} cx={x} cy={y} r="2.5" fill="#FB923C"
+          initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2 + i * 0.22, duration: 0.3, repeat: Infinity, repeatDelay: 2.76 }} />
+      ))}
+    </svg>
+  )
+}
+
+function IlluVergi() {
+  const checks = [{ y: 18 }, { y: 24 }, { y: 30 }]
+  return (
+    <svg viewBox="0 0 44 44" fill="none" className="w-full h-full">
+      <rect x="4" y="4" width="26" height="36" rx="3" fill="rgba(252,211,77,0.07)" stroke="rgba(252,211,77,0.3)" strokeWidth="1.2" />
+      <path d="M24 4 L30 10 L24 10 Z" fill="rgba(252,211,77,0.2)" />
+      <circle cx="35" cy="12" r="7" fill="rgba(252,211,77,0.12)" stroke="rgba(252,211,77,0.4)" strokeWidth="1.2" />
+      <text x="31.5" y="16.5" fontSize="9" fill="#FCD34D" fontWeight="bold">₺</text>
+      <rect x="8" y="10" width="12" height="2" rx="1" fill="rgba(252,211,77,0.3)" />
+      {checks.map((c, i) => (
+        <motion.g key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 + i * 0.5, duration: 0.3, repeat: Infinity, repeatDelay: 2.5 }}>
+          <circle cx="12" cy={c.y} r="3.5" fill="rgba(52,211,153,0.15)" stroke="rgba(52,211,153,0.4)" strokeWidth="1" />
+          <motion.path d={`M10 ${c.y} L12 ${c.y+2} L15 ${c.y-2}`} fill="none" stroke="#34D399" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"
+            initial={{ pathLength: 0 }} animate={{ pathLength: [0, 0, 1] }}
+            transition={{ delay: 0.4 + i * 0.5, duration: 0.3, repeat: Infinity, repeatDelay: 2.5 }} />
+          <rect x="19" y={c.y - 1} width={i === 0 ? 9 : 7} height="1.8" rx="0.9" fill="rgba(252,211,77,0.3)" />
+        </motion.g>
+      ))}
+    </svg>
+  )
+}
+
+function IlluPaylasim() {
+  return (
+    <svg viewBox="0 0 44 44" fill="none" className="w-full h-full">
+      <rect x="2" y="14" width="10" height="16" rx="2" fill="rgba(244,114,182,0.1)" stroke="rgba(244,114,182,0.4)" strokeWidth="1.2" />
+      <rect x="4" y="17" width="6" height="7" rx="1" fill="rgba(244,114,182,0.12)" />
+      <rect x="5.5" y="26" width="3" height="1.5" rx="0.75" fill="rgba(244,114,182,0.4)" />
+      <rect x="32" y="16" width="11" height="8" rx="1.5" fill="rgba(244,114,182,0.1)" stroke="rgba(244,114,182,0.4)" strokeWidth="1.2" />
+      <rect x="30" y="24" width="15" height="2" rx="1" fill="rgba(244,114,182,0.2)" stroke="rgba(244,114,182,0.3)" strokeWidth="1" />
+      <motion.circle cx="22" cy="22" r="5" fill="rgba(244,114,182,0.12)" stroke="rgba(244,114,182,0.5)" strokeWidth="1.5"
+        animate={{ r: [5, 6, 5] }} transition={{ duration: 2, repeat: Infinity }} />
+      <path d="M20 22 L22 20 L24 22 M22 20 L22 25" fill="none" stroke="#F472B6" strokeWidth="1.3" strokeLinecap="round" />
+      <line x1="12" y1="22" x2="17" y2="22" stroke="rgba(244,114,182,0.25)" strokeWidth="1" strokeDasharray="2 2" />
+      <line x1="27" y1="22" x2="32" y2="22" stroke="rgba(244,114,182,0.25)" strokeWidth="1" strokeDasharray="2 2" />
+      {[0, 0.4, 0.8].map((d, i) => (
+        <motion.circle key={i} r="1.5" fill="#F472B6"
+          animate={{ cx: [12, 17], cy: [22, 22], opacity: [0, 1, 0] }}
+          transition={{ duration: 0.8, delay: d, repeat: Infinity, repeatDelay: 1.2 }} />
+      ))}
+      {[0.3, 0.7].map((d, i) => (
+        <motion.circle key={i} r="1.5" fill="#F472B6"
+          animate={{ cx: [27, 32], cy: [22, 22], opacity: [0, 1, 0] }}
+          transition={{ duration: 0.8, delay: d, repeat: Infinity, repeatDelay: 1.2 }} />
+      ))}
+    </svg>
+  )
+}
+
+const FEATURES_V2 = [
+  {
+    Illu: IlluFis,
+    label: "Fiş & Fatura Saklama",
+    desc: "Fişini tara, buluta gönder. Yıllarca güvende — istediğin an bul.",
+    color: "#60A5FA", bg: "rgba(96,165,250,0.07)", border: "rgba(96,165,250,0.2)",
+  },
+  {
+    Illu: IlluPDF,
+    label: "Aylık PDF Raporu",
+    desc: "Her ay sonunda muhasebe raporun otomatik hazır — indir, paylaş.",
+    color: "#34D399", bg: "rgba(52,211,153,0.07)", border: "rgba(52,211,153,0.2)",
+  },
+  {
+    Illu: IlluAI,
+    label: "AI Finansal Koç",
+    desc: "Harcama alışkanlıklarını analiz eder, sana özel tasarruf önerileri sunar.",
+    color: "#A78BFA", bg: "rgba(167,139,250,0.07)", border: "rgba(167,139,250,0.2)",
+  },
+  {
+    Illu: IlluAnalitik,
+    label: "Gelişmiş Analitik",
+    desc: "Yıllık trend grafikleri, gelecek ay tahminleri, kategori bazlı derin analiz.",
+    color: "#FB923C", bg: "rgba(251,146,60,0.07)", border: "rgba(251,146,60,0.2)",
+  },
+  {
+    Illu: IlluVergi,
+    label: "KDV & Vergi Raporu",
+    desc: "Freelancer ve serbest çalışanlar için vergi döneminde hazır rapor.",
+    color: "#FCD34D", bg: "rgba(252,211,77,0.07)", border: "rgba(252,211,77,0.2)",
+  },
+  {
+    Illu: IlluPaylasim,
+    label: "Muhasebeci Paylaşımı",
+    desc: "Tek tıkla muhasebecine ilet. Dosya karmaşası, e-posta derdi yok.",
+    color: "#F472B6", bg: "rgba(244,114,182,0.07)", border: "rgba(244,114,182,0.2)",
+  },
 ]
 
 // --- SVG Illustrations ---
@@ -231,58 +419,57 @@ function Slide1({ onNext }: { onNext: () => void }) {
 
 function Slide2({ onNext, onPrev }: { onNext: () => void; onPrev: () => void }) {
   return (
-    <div className="flex flex-col h-full px-5 pt-5 pb-4 gap-4">
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <p className="text-[11px] font-bold uppercase tracking-widest mb-1" style={{ color: "#FCD34D" }}>6 Güçlü Özellik</p>
-        <h3 className="text-lg font-black text-white">Pro Üyelere Özel Her Şey</h3>
+    <div className="flex flex-col h-full pt-4 pb-4 gap-3">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="text-center px-5 flex-shrink-0">
+        <p className="text-[11px] font-bold uppercase tracking-widest mb-0.5" style={{ color: "#FCD34D" }}>6 Güçlü Özellik</p>
+        <h3 className="text-xl font-black text-white">Pro Üyelere Özel Her Şey</h3>
       </motion.div>
 
-      <div className="grid grid-cols-2 gap-2 flex-1">
-        {FEATURES.map((f, i) => (
+      {/* Scrollable feature list */}
+      <div className="flex-1 overflow-y-auto px-4 space-y-2 pr-3" style={{ scrollbarWidth: "none" }}>
+        {FEATURES_V2.map((f, i) => (
           <motion.div
             key={f.label}
-            initial={{ opacity: 0, y: 18, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ delay: i * 0.07, type: "spring", stiffness: 280, damping: 28 }}
-            className="rounded-[14px] p-3 flex gap-2.5 items-start relative overflow-hidden"
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: `1px solid ${f.border}`,
-            }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.09, type: "spring", stiffness: 300, damping: 30 }}
+            className="flex items-center gap-3 rounded-[16px] p-2.5 relative overflow-hidden"
+            style={{ background: f.bg, border: `1px solid ${f.border}` }}
           >
+            {/* Animated illustration */}
             <div
-              className="h-8 w-8 rounded-[9px] flex items-center justify-center flex-shrink-0 mt-0.5"
-              style={{ background: `${f.color}15`, border: `1px solid ${f.color}30` }}
+              className="h-[58px] w-[58px] rounded-[12px] flex items-center justify-center flex-shrink-0 p-1"
+              style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${f.border}` }}
             >
-              <f.icon className="h-4 w-4" style={{ color: f.color }} />
+              <f.Illu />
             </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold text-white leading-tight">{f.label}</p>
-              <p className="text-[10px] mt-0.5 leading-tight" style={{ color: "rgba(255,255,255,0.35)" }}>{f.desc}</p>
+
+            {/* Text */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-bold text-white leading-tight">{f.label}</p>
+              <p className="text-[11px] mt-0.5 leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>{f.desc}</p>
             </div>
+
+            {/* Accent glow */}
+            <div className="absolute right-0 top-0 bottom-0 w-16 pointer-events-none"
+              style={{ background: `linear-gradient(to left, ${f.color}06, transparent)` }} />
           </motion.div>
         ))}
       </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={onPrev}
+      {/* Buttons */}
+      <div className="flex gap-2 px-4 flex-shrink-0">
+        <button onClick={onPrev}
           className="h-11 w-11 rounded-[12px] flex items-center justify-center flex-shrink-0 text-white/35 hover:text-white/60 transition-colors"
-          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}
-        >
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <motion.button
-          onClick={onNext}
+        <motion.button onClick={onNext}
           whileHover={{ scale: 1.02, boxShadow: "0 6px 24px rgba(245,158,11,0.4)" }}
           whileTap={{ scale: 0.97 }}
           className="flex-1 h-11 rounded-[12px] flex items-center justify-center gap-2 font-bold text-sm text-black"
-          style={{ background: "linear-gradient(135deg, #FCD34D 0%, #F59E0B 50%, #D97706 100%)", boxShadow: "0 4px 16px rgba(245,158,11,0.3)" }}
-        >
+          style={{ background: "linear-gradient(135deg, #FCD34D 0%, #F59E0B 50%, #D97706 100%)", boxShadow: "0 4px 16px rgba(245,158,11,0.3)" }}>
           Fiyatı Gör
           <ArrowRight className="h-4 w-4" />
         </motion.button>

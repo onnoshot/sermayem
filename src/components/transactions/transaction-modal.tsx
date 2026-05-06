@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
-import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, GripHorizontal, Sparkles, Camera, ImageIcon, ScanLine, CheckCheck, AlertCircle } from "lucide-react"
+import { X, TrendingUp, TrendingDown, CheckCircle2, Clock, RefreshCw, Sparkles, ScanLine, CheckCheck, AlertCircle, Camera, Image as ImageIcon } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import type { Source, Transaction } from "@/types/database"
 import { SourceIcon } from "@/components/sources/source-icon"
@@ -26,11 +26,47 @@ interface ScanResult {
   notes?: string
 }
 
-function fileToBase64(file: File): Promise<string> {
+// Compress + resize image client-side before sending to API.
+// Phone photos are 3-15MB; we need to get under 800KB for reliable API transfer.
+async function compressImage(file: File, maxSizePx = 1600, quality = 0.88): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = (e) => resolve(e.target?.result as string)
     reader.onerror = reject
+    reader.onload = (e) => {
+      const img = new window.Image()
+      img.onerror = reject
+      img.onload = () => {
+        const { width, height } = img
+        let w = width, h = height
+
+        // Scale down if larger than maxSizePx
+        if (w > maxSizePx || h > maxSizePx) {
+          if (w > h) { h = Math.round((h / w) * maxSizePx); w = maxSizePx }
+          else { w = Math.round((w / h) * maxSizePx); h = maxSizePx }
+        }
+
+        const canvas = document.createElement("canvas")
+        canvas.width = w
+        canvas.height = h
+        const ctx = canvas.getContext("2d")!
+        ctx.drawImage(img, 0, 0, w, h)
+
+        // Start at target quality, reduce if still too big
+        let q = quality
+        const tryEncode = () => {
+          const dataUrl = canvas.toDataURL("image/jpeg", q)
+          const approxKB = Math.round((dataUrl.length * 0.75) / 1024)
+          if (approxKB > 900 && q > 0.5) {
+            q -= 0.1
+            tryEncode()
+          } else {
+            resolve(dataUrl)
+          }
+        }
+        tryEncode()
+      }
+      img.src = e.target?.result as string
+    }
     reader.readAsDataURL(file)
   })
 }
@@ -45,10 +81,12 @@ export function TransactionModal() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Receipt scanner state
-  const [scanState, setScanState] = useState<"idle" | "scanning" | "done" | "error">("idle")
+  const [scanState, setScanState] = useState<"idle" | "compressing" | "scanning" | "done" | "error">("idle")
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [scanPreview, setScanPreview] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [scanError, setScanError] = useState<string>("")
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
 
   // Lock body scroll on iOS when modal is open
   useEffect(() => {
@@ -148,32 +186,37 @@ export function TransactionModal() {
     }
     if (transactionModalOpen) {
       load()
-      // Reset scanner state when modal opens
       setScanState("idle")
       setScanResult(null)
       setScanPreview(null)
+      setScanError("")
     }
   }, [transactionModalOpen, editingTransactionId, reset, prefillDate])
 
   async function handleReceiptFile(file: File) {
-    if (!file.type.startsWith("image/")) { toast.error("Lütfen bir görüntü dosyası seçin"); return }
-    if (file.size > 10 * 1024 * 1024) { toast.error("Dosya boyutu 10MB'ı geçemez"); return }
+    if (!file.type.startsWith("image/") && !file.name.match(/\.(heic|heif)$/i)) {
+      toast.error("Lütfen bir görüntü dosyası seçin")
+      return
+    }
 
-    setScanState("scanning")
+    setScanState("compressing")
     setScanResult(null)
+    setScanError("")
 
     try {
-      const base64 = await fileToBase64(file)
-      setScanPreview(base64)
+      // Client-side compress: resize to max 1600px, JPEG ~88% quality → ~300-600KB
+      const compressed = await compressImage(file)
+      setScanPreview(compressed)
+      setScanState("scanning")
 
       const res = await fetch("/api/scan-receipt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: base64, mimeType: file.type }),
+        body: JSON.stringify({ imageBase64: compressed, mimeType: "image/jpeg" }),
       })
 
       if (!res.ok) {
-        const err = await res.json()
+        const err = await res.json().catch(() => ({ error: "Sunucu hatası" }))
         throw new Error(err.error || "Tarama başarısız")
       }
 
@@ -182,14 +225,16 @@ export function TransactionModal() {
       setScanState("done")
     } catch (err) {
       console.error(err)
+      const msg = err instanceof Error ? err.message : "Fiş taranamadı"
+      setScanError(msg)
       setScanState("error")
-      toast.error(err instanceof Error ? err.message : "Fiş taranamadı")
     }
   }
 
   function applyScanResult() {
     if (!scanResult) return
 
+    // Fill form fields
     if (scanResult.amount !== null && scanResult.amount > 0) {
       setValue("amount", scanResult.amount)
     }
@@ -199,20 +244,35 @@ export function TransactionModal() {
     if (scanResult.date) {
       setValue("occurred_on", scanResult.date)
     }
-    setValue("type", scanResult.type || "expense")
+    setValue("type", "expense")
     setValue("status", "completed")
 
-    // Try to match category to a source
-    if (scanResult.category && sources.length > 0) {
-      const categoryLower = scanResult.category.toLowerCase()
-      const matched = sources.find((s) =>
-        s.name.toLowerCase().includes(categoryLower) ||
-        categoryLower.includes(s.name.toLowerCase()) ||
-        (s.type === "expense" || s.type === "both")
-      )
-      if (matched && (matched.type === "expense" || matched.type === "both")) {
-        // Trigger AI suggestion via description instead of forcing a match
+    // Auto-match source: try description first, then category keywords
+    const expenseSources = sources.filter((s) => s.type === "expense" || s.type === "both")
+    if (expenseSources.length > 0 && scanResult.category) {
+      const catLower = scanResult.category.toLowerCase()
+      const descLower = (scanResult.description || "").toLowerCase()
+
+      // Keyword maps for Turkish categories
+      const categoryKeywords: Record<string, string[]> = {
+        "market": ["market", "bakkal", "manav", "migros", "bim", "a101", "şok", "carrefour", "metro", "kiler", "hakmar"],
+        "restoran/kafe": ["restoran", "kafe", "restaurant", "cafe", "starbucks", "mcdonald", "burger", "pizza", "yemek", "lokanta"],
+        "fatura": ["fatura", "elektrik", "su", "gaz", "internet", "telefon", "turkcell", "vodafone", "turk telekom"],
+        "ulaşım": ["benzin", "akaryakıt", "otopark", "taksi", "shell", "opet", "bp", "total"],
+        "sağlık": ["eczane", "hastane", "klinik", "optik", "pharmacy"],
+        "giyim": ["mavi", "lcw", "lc waikiki", "zara", "h&m", "koton", "boyner", "giyim", "ayakkabı"],
+        "elektronik": ["teknosa", "mediamarkt", "saturn", "vatan", "elektronik"],
       }
+
+      const keywords = categoryKeywords[catLower] || []
+      const matched = expenseSources.find((s) => {
+        const sName = s.name.toLowerCase()
+        return keywords.some((k) => sName.includes(k) || descLower.includes(k)) ||
+          sName.includes(catLower) ||
+          catLower.includes(sName)
+      })
+
+      if (matched) setValue("source_id", matched.id)
     }
 
     setScanState("idle")
@@ -225,6 +285,7 @@ export function TransactionModal() {
     setScanState("idle")
     setScanPreview(null)
     setScanResult(null)
+    setScanError("")
   }
 
   async function onSubmit(data: TransactionInput) {
@@ -291,16 +352,28 @@ export function TransactionModal() {
                       {editingTransactionId ? "İşlemi Düzenle" : "İşlem Ekle"}
                     </h2>
                     <div className="flex items-center gap-2">
-                      {/* Receipt scan button — only for new transactions */}
+                      {/* Receipt scan — only for new transactions */}
                       {!editingTransactionId && (
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-semibold transition-all border border-purple-500/25 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/40"
-                        >
-                          <ScanLine className="h-3.5 w-3.5" />
-                          Fiş Tara
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => cameraInputRef.current?.click()}
+                            title="Kamerayla çek"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px] text-xs font-semibold transition-all border border-purple-500/25 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/40"
+                          >
+                            <Camera className="h-3.5 w-3.5" />
+                            <span className="hidden sm:inline">Kamera</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => galleryInputRef.current?.click()}
+                            title="Galeriden seç"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px] text-xs font-semibold transition-all border border-purple-500/25 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/40"
+                          >
+                            <ImageIcon className="h-3.5 w-3.5" />
+                            <span className="hidden sm:inline">Galeri</span>
+                          </button>
+                        </div>
                       )}
                       <button
                         onClick={closeTransactionModal}
@@ -311,18 +384,22 @@ export function TransactionModal() {
                     </div>
                   </div>
 
-                  {/* Hidden file input — camera on mobile, gallery on desktop */}
+                  {/* Camera input — forces device camera on mobile */}
                   <input
-                    ref={fileInputRef}
+                    ref={cameraInputRef}
                     type="file"
                     accept="image/*"
                     capture="environment"
                     className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) handleReceiptFile(file)
-                      e.target.value = ""
-                    }}
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleReceiptFile(f); e.target.value = "" }}
+                  />
+                  {/* Gallery input — opens photo library */}
+                  <input
+                    ref={galleryInputRef}
+                    type="file"
+                    accept="image/*,image/heic,image/heif"
+                    className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleReceiptFile(f); e.target.value = "" }}
                   />
 
                   {/* Scanner overlay */}
@@ -334,12 +411,31 @@ export function TransactionModal() {
                         exit={{ opacity: 0, y: -8, height: 0 }}
                         className="overflow-hidden mb-4"
                       >
-                        <div className="rounded-[16px] border overflow-hidden"
-                          style={{ borderColor: scanState === "done" ? "rgba(34,197,94,0.25)" : scanState === "error" ? "rgba(239,68,68,0.25)" : "rgba(168,85,247,0.25)", background: scanState === "done" ? "rgba(34,197,94,0.05)" : scanState === "error" ? "rgba(239,68,68,0.05)" : "rgba(168,85,247,0.05)" }}>
+                        <div
+                          className="rounded-[16px] border overflow-hidden"
+                          style={{
+                            borderColor: scanState === "done" ? "rgba(34,197,94,0.25)" : scanState === "error" ? "rgba(239,68,68,0.25)" : "rgba(168,85,247,0.25)",
+                            background: scanState === "done" ? "rgba(34,197,94,0.05)" : scanState === "error" ? "rgba(239,68,68,0.05)" : "rgba(168,85,247,0.05)",
+                          }}
+                        >
                           <div className="p-3.5">
+
+                            {/* Compressing */}
+                            {scanState === "compressing" && (
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-[10px] bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+                                  <ScanLine className="h-5 w-5 text-purple-400 animate-pulse" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-purple-300">Görüntü hazırlanıyor...</p>
+                                  <p className="text-[11px] text-white/30 mt-0.5">Boyut optimize ediliyor</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Scanning */}
                             {scanState === "scanning" && (
                               <div className="flex items-center gap-3">
-                                {/* Image preview thumbnail */}
                                 {scanPreview && (
                                   <div className="h-14 w-14 rounded-[10px] overflow-hidden flex-shrink-0 border border-white/10">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -347,18 +443,18 @@ export function TransactionModal() {
                                   </div>
                                 )}
                                 <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
+                                  <div className="flex items-center gap-2 mb-1.5">
                                     <ScanLine className="h-4 w-4 text-purple-400 animate-pulse" />
-                                    <span className="text-sm font-semibold text-purple-300">Fiş analiz ediliyor...</span>
+                                    <span className="text-sm font-semibold text-purple-300">Fiş okunuyor...</span>
                                   </div>
                                   <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
                                     <motion.div
                                       className="h-full rounded-full bg-purple-500"
-                                      animate={{ width: ["0%", "70%", "90%"] }}
-                                      transition={{ duration: 2.5, ease: "easeOut" }}
+                                      animate={{ width: ["5%", "65%", "88%"] }}
+                                      transition={{ duration: 8, ease: "easeOut" }}
                                     />
                                   </div>
-                                  <p className="text-[11px] text-white/35 mt-1.5">AI bilgileri çıkarıyor</p>
+                                  <p className="text-[11px] text-white/30 mt-1.5">Tutar, tarih ve kategori tespit ediliyor</p>
                                 </div>
                                 <button onClick={dismissScan} className="h-6 w-6 rounded-full flex items-center justify-center text-white/25 hover:text-white/50 transition-all flex-shrink-0">
                                   <X className="h-3.5 w-3.5" />
@@ -366,10 +462,11 @@ export function TransactionModal() {
                               </div>
                             )}
 
+                            {/* Done */}
                             {scanState === "done" && scanResult && (
                               <div className="flex items-start gap-3">
                                 {scanPreview && (
-                                  <div className="h-14 w-14 rounded-[10px] overflow-hidden flex-shrink-0 border border-white/10">
+                                  <div className="h-16 w-16 rounded-[10px] overflow-hidden flex-shrink-0 border border-white/10">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={scanPreview} alt="Fiş" className="h-full w-full object-cover" />
                                   </div>
@@ -383,7 +480,9 @@ export function TransactionModal() {
                                     {scanResult.amount !== null && (
                                       <p className="text-xs text-white/60">
                                         <span className="text-white/35">Tutar: </span>
-                                        <span className="font-mono font-semibold text-white/80">{scanResult.amount?.toLocaleString("tr-TR")} {scanResult.currency || "TRY"}</span>
+                                        <span className="font-mono font-semibold text-white/90">
+                                          {scanResult.amount?.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TL
+                                        </span>
                                       </p>
                                     )}
                                     {scanResult.description && (
@@ -404,6 +503,9 @@ export function TransactionModal() {
                                         <span className="text-white/80">{scanResult.date}</span>
                                       </p>
                                     )}
+                                    {scanResult.amount === null && (
+                                      <p className="text-xs text-orange-400">Tutar okunamadı — lütfen manuel girin</p>
+                                    )}
                                   </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5 flex-shrink-0">
@@ -419,31 +521,34 @@ export function TransactionModal() {
                                     onClick={dismissScan}
                                     className="px-3 py-1.5 rounded-[9px] text-xs font-medium text-white/30 hover:text-white/50 transition-all"
                                   >
-                                    Yoksay
+                                    İptal
                                   </button>
                                 </div>
                               </div>
                             )}
 
+                            {/* Error */}
                             {scanState === "error" && (
-                              <div className="flex items-center gap-3">
-                                <div className="h-8 w-8 rounded-[10px] bg-red-500/15 flex items-center justify-center flex-shrink-0">
-                                  <AlertCircle className="h-4 w-4 text-red-400" />
+                              <div className="flex items-start gap-3">
+                                <div className="h-9 w-9 rounded-[10px] bg-red-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <AlertCircle className="h-4.5 w-4.5 text-red-400" />
                                 </div>
-                                <div className="flex-1">
+                                <div className="flex-1 min-w-0">
                                   <p className="text-sm font-semibold text-red-400">Fiş okunamadı</p>
-                                  <p className="text-[11px] text-white/35 mt-0.5">Daha net bir fotoğraf deneyin</p>
+                                  <p className="text-[11px] text-white/35 mt-0.5 leading-relaxed">
+                                    {scanError || "Daha net, iyi aydınlatılmış bir fotoğraf deneyin"}
+                                  </p>
                                 </div>
-                                <div className="flex gap-2 flex-shrink-0">
+                                <div className="flex flex-col gap-1.5 flex-shrink-0">
                                   <button
                                     type="button"
-                                    onClick={() => { dismissScan(); fileInputRef.current?.click() }}
-                                    className="px-3 py-1.5 rounded-[9px] text-xs font-semibold bg-white/[0.06] text-white/50 hover:bg-white/10 transition-all"
+                                    onClick={() => { dismissScan(); galleryInputRef.current?.click() }}
+                                    className="px-2.5 py-1.5 rounded-[9px] text-xs font-semibold bg-white/[0.06] text-white/50 hover:bg-white/10 transition-all"
                                   >
                                     Tekrar
                                   </button>
-                                  <button onClick={dismissScan} className="h-7 w-7 rounded-full flex items-center justify-center text-white/25 hover:text-white/50 transition-all">
-                                    <X className="h-3.5 w-3.5" />
+                                  <button onClick={dismissScan} className="px-2.5 py-1.5 rounded-[9px] text-xs text-white/25 hover:text-white/50 transition-all">
+                                    Kapat
                                   </button>
                                 </div>
                               </div>

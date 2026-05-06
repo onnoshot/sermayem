@@ -84,6 +84,36 @@ export interface SavingsGoal {
   updated_at: string
 }
 
+export type PlanType = "free" | "pro" | "business"
+export type PlanStatus = "active" | "cancelled" | "past_due" | "trialing"
+
+export interface UserPlan {
+  id: string
+  user_id: string
+  plan: PlanType
+  status: PlanStatus
+  stripe_customer_id: string | null
+  stripe_subscription_id: string | null
+  stripe_price_id: string | null
+  current_period_start: string | null
+  current_period_end: string | null
+  cancel_at_period_end: boolean
+  pro_until: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface Receipt {
+  id: string
+  user_id: string
+  transaction_id: string | null
+  storage_path: string
+  file_size_bytes: number | null
+  mime_type: string
+  scan_data: Record<string, unknown> | null
+  created_at: string
+}
+
 export interface DismissedSubscription {
   id: string
   user_id: string

@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import {
   LayoutDashboard, TrendingUp, TrendingDown, Clock, Layers,
   BarChart3, User, Settings, LogOut, Plus, ChevronLeft, ChevronRight, X,
-  Wallet, Target, Upload,
+  Wallet, Target, Upload, Crown,
 } from "lucide-react"
 import { useUIStore } from "@/lib/stores/ui-store"
 import type { Profile } from "@/types/database"
@@ -26,6 +26,7 @@ const NAV = [
 ]
 
 const BOTTOM_NAV = [
+  { href: "/app/premium", label: "Pro Üyelik", icon: Crown },
   { href: "/app/import", label: "CSV Aktar", icon: Upload },
   { href: "/app/profile", label: "Profil", icon: User },
   { href: "/app/settings", label: "Ayarlar", icon: Settings },

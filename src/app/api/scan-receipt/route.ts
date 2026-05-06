@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import Anthropic from "@anthropic-ai/sdk"
+import { isPro } from "@/lib/premium"
 
 export const maxDuration = 30
 
@@ -151,10 +152,43 @@ KATEGORİ SEÇENEKLERI (yalnızca bunlardan birini seç):
       parsed.amount = null
     }
 
+    // Save receipt to Storage for Pro users (non-blocking)
+    saveReceiptForPro(supabase, user.id, imageBase64, mediaType, parsed).catch(() => {})
+
     return NextResponse.json(parsed)
   } catch (err) {
     console.error("scan-receipt error:", err)
     const message = err instanceof Error ? err.message : "Bilinmeyen hata"
     return NextResponse.json({ error: `Tarama başarısız: ${message}` }, { status: 500 })
   }
+}
+
+async function saveReceiptForPro(
+  supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>,
+  userId: string,
+  imageBase64: string,
+  mediaType: string,
+  scanData: Record<string, unknown>,
+) {
+  const pro = await isPro()
+  if (!pro) return
+
+  const buf = Buffer.from(imageBase64, "base64")
+  const ext = mediaType === "image/png" ? "png" : "jpg"
+  const filename = `${Date.now()}.${ext}`
+  const storagePath = `${userId}/${filename}`
+
+  const { error } = await supabase.storage
+    .from("receipts")
+    .upload(storagePath, buf, { contentType: mediaType, upsert: false })
+
+  if (error) return
+
+  await supabase.from("receipts").insert({
+    user_id: userId,
+    storage_path: storagePath,
+    file_size_bytes: buf.byteLength,
+    mime_type: mediaType,
+    scan_data: scanData,
+  })
 }

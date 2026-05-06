@@ -93,7 +93,7 @@ export default async function DashboardPage() {
         <DashboardHeader
           greeting={greeting}
           firstName={profile?.full_name?.split(" ")[0] || "Kullanıcı"}
-          avatarEmoji={profile?.avatar_emoji || "👋"}
+          avatarEmoji={profile?.avatar_emoji || "target"}
           date={formatDate(now, "d MMMM yyyy, EEEE")}
           monthIncome={monthIncome}
           monthExpense={monthExpense}

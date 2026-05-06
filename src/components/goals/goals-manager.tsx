@@ -8,7 +8,7 @@ import { Plus, Pencil, Trash2, X, PlusCircle, MinusCircle } from "lucide-react"
 import { GlassSurface } from "@/components/ui/glass-surface"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { SourceIcon, ICON_OPTIONS } from "@/components/sources/source-icon"
+import { AvatarIcon, IconPicker, GOAL_ICONS, resolveIconId } from "@/components/ui/avatar-icon"
 import { formatCurrency, formatCurrencyCompact, formatDate } from "@/lib/format"
 import type { SavingsGoal, Currency } from "@/types/database"
 import { useRouter } from "next/navigation"
@@ -32,18 +32,18 @@ export function GoalsManager({ goals, currency }: Props) {
   const [updateAmount, setUpdateAmount] = useState("")
   const [updateMode, setUpdateMode] = useState<"add" | "set">("add")
   const [form, setForm] = useState({
-    name: "", emoji: "🎯", color: "#EAB308",
+    name: "", emoji: "target", color: "#EAB308",
     target_amount: "", current_amount: "", deadline: "",
   })
 
   function openAdd() {
     setEditing(null)
-    setForm({ name: "", emoji: "🎯", color: "#EAB308", target_amount: "", current_amount: "0", deadline: "" })
+    setForm({ name: "", emoji: "target", color: "#EAB308", target_amount: "", current_amount: "0", deadline: "" })
     setModalOpen(true)
   }
   function openEdit(g: SavingsGoal) {
     setEditing(g)
-    setForm({ name: g.name, emoji: g.emoji, color: g.color, target_amount: String(g.target_amount), current_amount: String(g.current_amount), deadline: g.deadline ?? "" })
+    setForm({ name: g.name, emoji: resolveIconId(g.emoji, GOAL_ICONS), color: g.color, target_amount: String(g.target_amount), current_amount: String(g.current_amount), deadline: g.deadline ?? "" })
     setModalOpen(true)
   }
 
@@ -131,9 +131,7 @@ export function GoalsManager({ goals, currency }: Props) {
                 <GlassSurface className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="h-10 w-10 rounded-[12px] flex items-center justify-center text-xl flex-shrink-0" style={{ background: `${goal.color}18`, border: `1px solid ${goal.color}25` }}>
-                        {goal.emoji}
-                      </div>
+                      <AvatarIcon id={goal.emoji} size="md" pool={GOAL_ICONS} />
                       <div>
                         <p className="text-sm font-semibold text-white/85">{goal.name}</p>
                         {daysLeft !== null && (
@@ -229,18 +227,15 @@ export function GoalsManager({ goals, currency }: Props) {
                   <div className="space-y-4">
                     <Input label="Hedef Adı" placeholder="örn. Araba, Tatil, Acil Fon" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
 
-                    {/* Emoji picker */}
+                    {/* Icon picker */}
                     <div>
                       <p className="text-[11px] text-white/40 uppercase tracking-wider mb-2">İkon</p>
-                      <div className="grid grid-cols-8 gap-1.5">
-                        {["🎯","🚗","🏠","✈️","💍","📱","💻","🎓","🏖️","🏋️","🎁","💰","🏦","📦","🌍","🎨"].map((e) => (
-                          <button key={e} type="button" onClick={() => setForm((f) => ({ ...f, emoji: e }))}
-                            className={cn("h-9 w-full rounded-[10px] text-lg flex items-center justify-center transition-all",
-                              form.emoji === e ? "bg-[#E50001]/15 border border-[#E50001]/40 scale-110" : "bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.09]")}>
-                            {e}
-                          </button>
-                        ))}
-                      </div>
+                      <IconPicker
+                        value={form.emoji}
+                        onChange={(id) => setForm((f) => ({ ...f, emoji: id }))}
+                        pool={GOAL_ICONS}
+                        columns={8}
+                      />
                     </div>
 
                     {/* Color */}
@@ -288,7 +283,7 @@ export function GoalsManager({ goals, currency }: Props) {
             >
               <div className="sm:hidden flex justify-center mb-4"><div className="h-1 w-10 rounded-full bg-white/15" /></div>
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-2xl">{updateModal.emoji}</span>
+                <AvatarIcon id={updateModal.emoji} size="sm" pool={GOAL_ICONS} />
                 <div>
                   <h2 className="text-base font-bold text-white">{updateModal.name}</h2>
                   <p className="text-xs text-white/35">{formatCurrencyCompact(updateModal.current_amount, currency)} / {formatCurrencyCompact(updateModal.target_amount, currency)}</p>

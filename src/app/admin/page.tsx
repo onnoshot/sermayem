@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect } from "next/navigation"
 import { formatCurrencyCompact } from "@/lib/format"
 import { Users, TrendingUp, Calendar, Activity } from "lucide-react"
+import { AvatarIcon } from "@/components/ui/avatar-icon"
 
 export const metadata = { title: "Admin" }
 
@@ -158,9 +159,7 @@ export default async function AdminPage() {
                     <tr key={u.email} className={`border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="h-8 w-8 rounded-[9px] bg-white/[0.06] flex items-center justify-center text-base flex-shrink-0">
-                            {p?.avatar_emoji || "👤"}
-                          </div>
+                          <AvatarIcon id={p?.avatar_emoji} size="sm" />
                           <span className="text-sm text-white/80 font-medium truncate max-w-[120px]">
                             {p?.full_name || "İsimsiz"}
                           </span>

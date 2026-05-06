@@ -293,17 +293,15 @@ function Slide2({ onNext, onPrev }: { onNext: () => void; onPrev: () => void }) 
 
 function Slide3({ onPrev, onPurchase, purchasing }: { onPrev: () => void; onPurchase: () => void; purchasing: boolean }) {
   return (
-    <div className="flex flex-col h-full px-5 pt-5 pb-4 gap-3.5">
+    <div className="flex flex-col h-full px-5 pt-4 pb-4 gap-3">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
         <p className="text-[11px] font-bold uppercase tracking-widest mb-1" style={{ color: "#FCD34D" }}>Sınırlı Süre Teklifi</p>
-        <h3 className="text-lg font-black text-white">Tek Ödeme, Sonsuz Erişim</h3>
-        <p className="text-[11px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
-          Aylık abonelik yok. Bir kez öde, sonsuza kadar kullan.
-        </p>
+        <h3 className="text-xl font-black text-white">Tek Ödeme, Ömür Boyu Erişim</h3>
       </motion.div>
 
       {/* Price card */}
@@ -311,7 +309,7 @@ function Slide3({ onPrev, onPurchase, purchasing }: { onPrev: () => void; onPurc
         initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.1, type: "spring", stiffness: 240, damping: 26 }}
-        className="rounded-[20px] p-5 relative overflow-hidden flex-1 flex flex-col justify-between"
+        className="rounded-[20px] p-4 relative overflow-hidden"
         style={{
           background: "linear-gradient(145deg, rgba(245,158,11,0.1) 0%, rgba(217,119,6,0.05) 100%)",
           border: "1px solid rgba(245,158,11,0.22)",
@@ -319,9 +317,8 @@ function Slide3({ onPrev, onPurchase, purchasing }: { onPrev: () => void; onPurc
         }}
       >
         <PricingBackground />
-
         <div className="relative z-10">
-          {/* Discount badge + old price */}
+          {/* Discount + old price */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -342,47 +339,99 @@ function Slide3({ onPrev, onPurchase, purchasing }: { onPrev: () => void; onPurc
             initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.4, type: "spring", stiffness: 220, damping: 18 }}
-            className="flex items-baseline gap-1 mb-0.5"
+            className="flex items-baseline gap-1 mb-2"
           >
-            <span
-              className="text-5xl font-black"
-              style={{ color: "#FCD34D", textShadow: "0 0 40px rgba(252,211,77,0.5), 0 0 12px rgba(245,158,11,0.4)" }}
-            >
+            <span className="text-5xl font-black" style={{ color: "#FCD34D", textShadow: "0 0 40px rgba(252,211,77,0.5), 0 0 12px rgba(245,158,11,0.4)" }}>
               990
             </span>
             <span className="text-2xl font-black" style={{ color: "rgba(252,211,77,0.7)" }}>TL</span>
           </motion.div>
 
-          <p className="text-[11px] mb-4" style={{ color: "rgba(255,255,255,0.35)" }}>
-            Tek seferlik ödeme · Sonsuza kadar tüm özellikler
-          </p>
-
-          {/* Feature list */}
-          <div className="space-y-1.5">
+          {/* One-time emphasis chips */}
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex flex-wrap gap-1.5 mb-3"
+          >
             {[
-              "Sınırsız fiş & fatura saklama",
-              "Aylık PDF muhasebe raporu",
+              { label: "Tek seferlik", pulse: true },
+              { label: "Aylık abonelik yok", pulse: false },
+              { label: "Sonsuza kadar", pulse: false },
+            ].map((chip) => (
+              <div key={chip.label} className="relative flex items-center gap-1 px-2.5 py-1 rounded-full"
+                style={{ background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.25)" }}>
+                {chip.pulse && (
+                  <motion.div
+                    animate={{ scale: [1, 1.6, 1], opacity: [1, 0, 1] }}
+                    transition={{ duration: 1.8, repeat: Infinity }}
+                    className="h-1.5 w-1.5 rounded-full bg-emerald-400 flex-shrink-0"
+                  />
+                )}
+                <span className="text-[10px] font-bold" style={{ color: "#34D399" }}>{chip.label}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Feature list - compact */}
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+            {[
+              "Sınırsız fiş saklama",
+              "Aylık PDF raporu",
               "AI Finansal Koç",
-              "Gelişmiş analitik & tahminler",
+              "Gelişmiş analitik",
               "KDV & vergi raporu",
               "Muhasebeci paylaşımı",
             ].map((item, i) => (
               <motion.div
                 key={item}
-                initial={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 + i * 0.05 }}
-                className="flex items-center gap-2"
+                transition={{ delay: 0.55 + i * 0.05 }}
+                className="flex items-center gap-1.5"
               >
-                <div className="h-4 w-4 rounded-full flex items-center justify-center flex-shrink-0"
+                <div className="h-3.5 w-3.5 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ background: "rgba(52,211,153,0.15)", border: "1px solid rgba(52,211,153,0.3)" }}>
-                  <Check className="h-2.5 w-2.5" style={{ color: "#34D399" }} />
+                  <Check className="h-2 w-2" style={{ color: "#34D399" }} />
                 </div>
-                <span className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>{item}</span>
+                <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.6)" }}>{item}</span>
               </motion.div>
             ))}
           </div>
         </div>
+      </motion.div>
+
+      {/* One-time banner */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.7 }}
+        className="rounded-[14px] px-4 py-2.5 flex items-center gap-3 relative overflow-hidden"
+        style={{
+          background: "linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(217,119,6,0.04) 100%)",
+          border: "1px solid rgba(245,158,11,0.2)",
+        }}
+      >
+        <motion.div
+          animate={{ rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 3 }}
+          className="flex-shrink-0"
+        >
+          <Crown className="h-5 w-5" style={{ color: "#FCD34D" }} />
+        </motion.div>
+        <div>
+          <p className="text-xs font-black" style={{ color: "#FCD34D" }}>Bir kez ode, hep kullan</p>
+          <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+            Rakipler aylik abonelik alıyor. Biz almıyoruz.
+          </p>
+        </div>
+        <motion.div
+          animate={{ x: [0, 4, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="ml-auto flex-shrink-0"
+        >
+          <ArrowRight className="h-4 w-4" style={{ color: "rgba(245,158,11,0.5)" }} />
+        </motion.div>
       </motion.div>
 
       {/* Action buttons */}
@@ -397,14 +446,22 @@ function Slide3({ onPrev, onPurchase, purchasing }: { onPrev: () => void; onPurc
         <motion.button
           onClick={onPurchase}
           disabled={purchasing}
-          whileHover={!purchasing ? { scale: 1.02, boxShadow: "0 8px 32px rgba(245,158,11,0.55)" } : {}}
+          whileHover={!purchasing ? { scale: 1.02, boxShadow: "0 8px 36px rgba(245,158,11,0.6)" } : {}}
           whileTap={!purchasing ? { scale: 0.97 } : {}}
-          className="flex-1 h-12 rounded-[12px] flex items-center justify-center gap-2 font-black text-sm text-black disabled:opacity-60"
+          className="flex-1 h-12 rounded-[12px] flex items-center justify-center gap-2 font-black text-sm text-black disabled:opacity-60 relative overflow-hidden"
           style={{
             background: purchasing ? "rgba(245,158,11,0.5)" : "linear-gradient(135deg, #FCD34D 0%, #F59E0B 45%, #D97706 100%)",
             boxShadow: purchasing ? "none" : "0 4px 24px rgba(245,158,11,0.45)",
           }}
         >
+          {!purchasing && (
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              animate={{ x: ["-100%", "200%"] }}
+              transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 1.5, ease: "easeInOut" }}
+              style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)", width: "50%" }}
+            />
+          )}
           {purchasing ? (
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
               <Zap className="h-4 w-4" />
@@ -412,7 +469,7 @@ function Slide3({ onPrev, onPurchase, purchasing }: { onPrev: () => void; onPurc
           ) : (
             <>
               <Zap className="h-4 w-4" />
-              Hemen Pro&apos;ya Geç
+              990 TL — Hemen Pro&apos;ya Geç
               <ArrowRight className="h-4 w-4" />
             </>
           )}

@@ -1,10 +1,12 @@
 "use client"
 
-import { usePathname, useRouter } from "next/navigation"
-import { useRef, useEffect } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { LayoutDashboard, TrendingUp, TrendingDown, BarChart3, Layers } from "lucide-react"
+import { cn } from "@/lib/utils"
+
 const NAV = [
-  { href: "/app", label: "Ana sayfa", icon: LayoutDashboard },
+  { href: "/app", label: "Ana Sayfa", icon: LayoutDashboard },
   { href: "/app/income", label: "Gelirler", icon: TrendingUp },
   { href: "/app/expenses", label: "Giderler", icon: TrendingDown },
   { href: "/app/analytics", label: "Analiz", icon: BarChart3 },
@@ -13,62 +15,55 @@ const NAV = [
 
 export function MobileBottomNav() {
   const pathname = usePathname()
-  const router = useRouter()
-  const textRefs = useRef<(HTMLElement | null)[]>([])
-  const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
-
   const isActive = (href: string) =>
     href === "/app" ? pathname === "/app" : pathname.startsWith(href)
 
-  const activeIndex = NAV.findIndex((item) => isActive(item.href))
-
-  useEffect(() => {
-    const setLineWidth = () => {
-      if (activeIndex < 0) return
-      const el = itemRefs.current[activeIndex]
-      const textEl = textRefs.current[activeIndex]
-      if (el && textEl) {
-        el.style.setProperty("--lineWidth", `${textEl.offsetWidth}px`)
-      }
-    }
-    setLineWidth()
-    window.addEventListener("resize", setLineWidth)
-    return () => window.removeEventListener("resize", setLineWidth)
-  }, [activeIndex])
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 md:hidden">
-      {/* Nav bar */}
-      <nav
-        className="menu"
-        role="navigation"
-        style={{ "--component-active-color-default": "#E50001" } as React.CSSProperties}
-      >
-        {NAV.map((item, index) => {
-          const active = isActive(item.href)
-          const Icon = item.icon
-          return (
-            <button
-              key={item.href}
-              className={`menu__item${active ? " active" : ""}`}
-              onClick={() => router.push(item.href)}
-              ref={(el) => { itemRefs.current[index] = el }}
-              style={{ "--lineWidth": "0px" } as React.CSSProperties}
-              aria-current={active ? "page" : undefined}
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-30 md:hidden flex items-stretch justify-around border-t border-white/[0.07]"
+      style={{
+        background: "rgba(10,10,18,0.96)",
+        backdropFilter: "blur(28px)",
+        WebkitBackdropFilter: "blur(28px)",
+        paddingBottom: "calc(0.375rem + env(safe-area-inset-bottom))",
+      }}
+    >
+      {NAV.map(({ href, label, icon: Icon }) => {
+        const active = isActive(href)
+        return (
+          <Link
+            key={href}
+            href={href}
+            className="relative flex flex-col items-center justify-center gap-[5px] flex-1 pt-2.5 pb-1 min-w-0"
+          >
+            {/* Active top-of-bar indicator */}
+            <span
+              className={cn(
+                "absolute top-0 left-1/2 -translate-x-1/2 h-[2px] rounded-b-full transition-all duration-300",
+                active ? "w-6 bg-[#E50001]" : "w-0 bg-transparent"
+              )}
+            />
+
+            <Icon
+              className={cn(
+                "flex-shrink-0 transition-colors duration-200",
+                active ? "text-[#E50001]" : "text-white/30"
+              )}
+              style={{ width: 22, height: 22 }}
+              strokeWidth={active ? 2.2 : 1.7}
+            />
+
+            <span
+              className={cn(
+                "text-[10px] leading-none transition-colors duration-200 truncate max-w-full px-1",
+                active ? "text-[#E50001] font-semibold" : "text-white/30 font-medium"
+              )}
             >
-              <div className="menu__icon">
-                <Icon className="icon" />
-              </div>
-              <strong
-                className={`menu__text${active ? " active" : ""}`}
-                ref={(el) => { textRefs.current[index] = el as HTMLElement | null }}
-              >
-                {item.label}
-              </strong>
-            </button>
-          )
-        })}
-      </nav>
-    </div>
+              {label}
+            </span>
+          </Link>
+        )
+      })}
+    </nav>
   )
 }

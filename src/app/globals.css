@@ -2,7 +2,7 @@
 
 @theme {
   --font-family-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
-  --font-family-mono: "SF Mono", SFMono-Regular, "Cascadia Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+  --font-family-mono: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
 
   --color-gold: #EAB308;
   --color-gold-soft: #FDE047;
@@ -80,6 +80,8 @@ body {
   background: var(--c-bg);
   color: var(--c-text);
   font-family: var(--font-family-sans);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
   min-height: 100vh;
   min-height: 100dvh;
   transition: background 0.3s ease, color 0.2s ease;

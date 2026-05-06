@@ -1,20 +1,7 @@
 import type { Metadata } from "next"
-import { Inter, JetBrains_Mono } from "next/font/google"
 import Script from "next/script"
 import { Providers } from "./providers"
 import "./globals.css"
-
-const inter = Inter({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-inter",
-  display: "swap",
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sermayem.com"),
@@ -59,7 +46,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr" className={`${inter.variable} ${jetbrainsMono.variable} h-full`} suppressHydrationWarning>
+    <html lang="tr" className="h-full" suppressHydrationWarning>
       <head>
         {/* Prevent flash of wrong theme before hydration */}
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('sermayem-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}` }} />

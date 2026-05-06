@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-family-sans: var(--font-inter), system-ui, sans-serif;
-  --font-family-mono: var(--font-jetbrains-mono), "Courier New", monospace;
+  --font-family-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  --font-family-mono: "SF Mono", SFMono-Regular, "Cascadia Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
 
   --color-gold: #EAB308;
   --color-gold-soft: #FDE047;

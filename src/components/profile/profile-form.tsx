@@ -11,6 +11,7 @@ import type { Profile } from "@/types/database"
 import { cn } from "@/lib/utils"
 import { AvatarIcon, IconPicker, AVATAR_OPTIONS, resolveIconId } from "@/components/ui/avatar-icon"
 import { Mail, TrendingUp, PiggyBank, Camera, X, Loader2 } from "lucide-react"
+import { useUIStore } from "@/lib/stores/ui-store"
 
 const CURRENCIES = [
   { code: "TRY", symbol: "₺", label: "Türk Lirası", color: "#E30A17" },
@@ -25,6 +26,7 @@ export function ProfileForm({ profile, userEmail }: { profile: Profile | null; u
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile?.avatar_url ?? null)
+  const { setProfileAvatarUrl } = useUIStore()
   const [form, setForm] = useState({
     full_name: profile?.full_name || "",
     avatar_emoji: resolveIconId(profile?.avatar_emoji),
@@ -62,6 +64,7 @@ export function ProfileForm({ profile, userEmail }: { profile: Profile | null; u
     if (updateError) { toast.error("Profil güncellenemedi"); setUploading(false); return }
 
     setAvatarUrl(urlWithBust)
+    setProfileAvatarUrl(urlWithBust)
     toast.success("Profil fotoğrafı güncellendi")
     setUploading(false)
     router.refresh()
@@ -73,6 +76,7 @@ export function ProfileForm({ profile, userEmail }: { profile: Profile | null; u
     if (!user) return
     await supabase.from("profiles").update({ avatar_url: null }).eq("id", user.id)
     setAvatarUrl(null)
+    setProfileAvatarUrl(null)
     router.refresh()
   }
 
@@ -97,20 +101,23 @@ export function ProfileForm({ profile, userEmail }: { profile: Profile | null; u
       {/* Avatar hero */}
       <GlassSurface className="p-6">
         <div className="flex items-center gap-5 mb-6">
-          {/* Avatar with photo upload overlay */}
-          <div className="relative flex-shrink-0 group">
+          {/* Avatar with always-visible camera badge */}
+          <div className="relative flex-shrink-0">
             <AvatarIcon id={form.avatar_emoji} avatarUrl={avatarUrl} size="2xl" glow />
+            {/* Camera badge — always visible */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="absolute inset-0 rounded-[22px] flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute -bottom-1.5 -right-1.5 h-8 w-8 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-[#0C0C16] transition-transform hover:scale-110 active:scale-95 disabled:opacity-60"
+              style={{ background: "linear-gradient(135deg, #E50001, #B91C1C)", boxShadow: "0 2px 12px rgba(229,0,1,0.4)" }}
             >
               {uploading
-                ? <Loader2 className="h-6 w-6 text-white animate-spin" />
-                : <Camera className="h-6 w-6 text-white" />
+                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                : <Camera className="h-3.5 w-3.5" />
               }
             </button>
+            {/* Remove photo */}
             {avatarUrl && (
               <button
                 type="button"
@@ -127,15 +134,9 @@ export function ProfileForm({ profile, userEmail }: { profile: Profile | null; u
               {form.full_name || "İsimsiz Kullanıcı"}
             </p>
             <p className="text-sm text-white/40 truncate">{userEmail}</p>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="mt-2 flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
-            >
-              <Camera className="h-3 w-3" />
-              {avatarUrl ? "Fotoğrafı değiştir" : "Fotoğraf yükle"}
-            </button>
+            <p className="mt-1.5 text-xs text-white/30">
+              {avatarUrl ? "Fotoğrafı değiştirmek için kamera ikonuna tıkla" : "Profil fotoğrafı eklemek için kamera ikonuna tıkla"}
+            </p>
           </div>
         </div>
 

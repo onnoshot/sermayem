@@ -38,7 +38,7 @@ interface SidebarProps {
 export function Sidebar({ profile }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { sidebarOpen, toggleSidebar, setSidebarOpen, openAddTransaction, openProModal } = useUIStore()
+  const { sidebarOpen, toggleSidebar, setSidebarOpen, openAddTransaction, openProModal, profileAvatarUrl } = useUIStore()
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -248,7 +248,7 @@ export function Sidebar({ profile }: SidebarProps) {
           "flex items-center gap-3 rounded-[12px] mt-1 p-2.5 bg-white/[0.04] border border-white/[0.07]",
           !sidebarOpen && "justify-center"
         )}>
-          <AvatarIcon id={profile?.avatar_emoji} avatarUrl={profile?.avatar_url} size="md" />
+          <AvatarIcon id={profile?.avatar_emoji} avatarUrl={profileAvatarUrl ?? profile?.avatar_url} size="md" />
           {sidebarOpen && (
             <>
               <div className="flex-1 min-w-0">

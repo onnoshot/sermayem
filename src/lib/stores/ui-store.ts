@@ -9,6 +9,7 @@ interface UIState {
   sourceModalOpen: boolean
   editingSourceId: string | null
   proModalOpen: boolean
+  profileAvatarUrl: string | null
   setSidebarOpen: (v: boolean) => void
   toggleSidebar: () => void
   openAddTransaction: () => void
@@ -20,6 +21,7 @@ interface UIState {
   closeSourceModal: () => void
   openProModal: () => void
   closeProModal: () => void
+  setProfileAvatarUrl: (url: string | null) => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -30,6 +32,7 @@ export const useUIStore = create<UIState>((set) => ({
   sourceModalOpen: false,
   editingSourceId: null,
   proModalOpen: false,
+  profileAvatarUrl: null,
   setSidebarOpen: (v) => set({ sidebarOpen: v }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   openAddTransaction: () => set({ transactionModalOpen: true, editingTransactionId: null, prefillDate: null }),
@@ -41,4 +44,5 @@ export const useUIStore = create<UIState>((set) => ({
   closeSourceModal: () => set({ sourceModalOpen: false, editingSourceId: null }),
   openProModal: () => set({ proModalOpen: true }),
   closeProModal: () => set({ proModalOpen: false }),
+  setProfileAvatarUrl: (url) => set({ profileAvatarUrl: url }),
 }))

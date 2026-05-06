@@ -12,16 +12,31 @@ import { ChartsSection } from "@/components/dashboard/charts-section"
 import { KpiCard } from "@/components/dashboard/kpi-card"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { PendingCalendar } from "@/components/pending/pending-calendar"
+import { HealthScoreWidget } from "@/components/dashboard/health-score-widget"
+import { SpendingVelocity } from "@/components/dashboard/spending-velocity"
+import { calculateHealthScore } from "@/lib/health-score"
+import type { Budget } from "@/types/database"
+import { startOfMonth, endOfMonth, getDaysInMonth } from "date-fns"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
-  const [{ data: profile }, { data: allTxs }, { data: sources }] = await Promise.all([
+  const monthStart = startOfMonth(new Date()).toISOString().split("T")[0]
+  const monthEnd = endOfMonth(new Date()).toISOString().split("T")[0]
+
+  const [{ data: profile }, { data: allTxs }, { data: sources }, { data: budgetData }, { data: lastMonthTxData }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single(),
     supabase.from("transactions").select("*, source:sources(*)").eq("user_id", user.id).order("occurred_on", { ascending: false }),
     supabase.from("sources").select("*").eq("user_id", user.id).eq("archived", false),
+    supabase.from("budgets").select("*, source:sources(*)").eq("user_id", user.id),
+    supabase.from("transactions")
+      .select("source_id, amount, type")
+      .eq("user_id", user.id)
+      .eq("status", "completed")
+      .gte("occurred_on", startOfMonth(new Date(new Date().getFullYear(), new Date().getMonth() - 1)).toISOString().split("T")[0])
+      .lte("occurred_on", endOfMonth(new Date(new Date().getFullYear(), new Date().getMonth() - 1)).toISOString().split("T")[0]),
   ])
 
   if (!profile?.onboarded_at) redirect("/onboarding")
@@ -48,6 +63,27 @@ export default async function DashboardPage() {
 
   const hour = now.getHours()
   const greeting = hour < 12 ? "Günaydın" : hour < 18 ? "İyi günler" : "İyi akşamlar"
+
+  // Budget spending map for current month
+  const budgetSpendingMap: Record<string, number> = {}
+  for (const tx of thisMonth.filter((t) => t.type === "expense")) {
+    if (tx.source_id) budgetSpendingMap[tx.source_id] = (budgetSpendingMap[tx.source_id] ?? 0) + tx.amount
+  }
+
+  const budgets = (budgetData || []) as Budget[]
+  const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpense) / totalIncome) * 100 : 0
+  const healthResult = calculateHealthScore({
+    savingsRate,
+    expenseToIncomeRatio: totalIncome > 0 ? totalExpense / totalIncome : 0,
+    budgets,
+    budgetSpending: budgetSpendingMap,
+    hasTransactionsThisMonth: thisMonth.length > 0,
+    totalIncome,
+  })
+
+  const lastMonthExpense = (lastMonthTxData || []).filter((t) => t.type === "expense").reduce((a, t) => a + t.amount, 0)
+  const dayOfMonth = now.getDate()
+  const daysInMonth = getDaysInMonth(now)
 
   return (
     <StaggerChildren className="space-y-6">
@@ -130,6 +166,20 @@ export default async function DashboardPage() {
               showSign
             />
           </div>
+        </div>
+      </StaggerItem>
+
+      {/* Health Score + Spending Velocity */}
+      <StaggerItem>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <HealthScoreWidget result={healthResult} />
+          <SpendingVelocity
+            currentMonthExpense={monthExpense}
+            lastMonthExpense={lastMonthExpense}
+            currency={currency}
+            dayOfMonth={dayOfMonth}
+            daysInMonth={daysInMonth}
+          />
         </div>
       </StaggerItem>
 

@@ -59,6 +59,31 @@ export interface Transaction {
   source?: Source
 }
 
+export interface Budget {
+  id: string
+  user_id: string
+  source_id: string | null
+  monthly_limit: number
+  currency: Currency
+  created_at: string
+  updated_at: string
+  source?: Source
+}
+
+export interface SavingsGoal {
+  id: string
+  user_id: string
+  name: string
+  emoji: string
+  color: string
+  target_amount: number
+  current_amount: number
+  currency: Currency
+  deadline: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface DismissedSubscription {
   id: string
   user_id: string

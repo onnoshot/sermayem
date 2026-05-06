@@ -7,6 +7,7 @@ import type { Transaction, Source } from "@/types/database"
 import { TrendingUp } from "lucide-react"
 import { FilteredTransactions } from "@/components/transactions/filtered-transactions"
 import { CategoryBreakdown, type CategoryStat } from "@/components/dashboard/category-breakdown"
+import { ExportButton } from "@/components/transactions/export-button"
 
 export const metadata = { title: "Gelirler" }
 
@@ -60,16 +61,19 @@ export default async function IncomePage() {
   return (
     <StaggerChildren>
       <StaggerItem>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-10 w-10 rounded-[12px] bg-green-500/15 flex items-center justify-center">
-            <TrendingUp className="h-5 w-5 text-green-400" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-[12px] bg-green-500/15 flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-green-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white tracking-tight">Gelirler</h1>
+              <p className="text-sm text-white/40">
+                Toplam: <span className="text-green-400 font-semibold tabular-nums">{formatCurrency(total, currency)}</span>
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Gelirler</h1>
-            <p className="text-sm text-white/40">
-              Toplam: <span className="text-green-400 font-semibold tabular-nums">{formatCurrency(total, currency)}</span>
-            </p>
-          </div>
+          <ExportButton type="income" />
         </div>
       </StaggerItem>
 

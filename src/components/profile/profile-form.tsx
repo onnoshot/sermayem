@@ -1,5 +1,6 @@
 "use client"
-import { useState } from "react"
+
+import { useRef, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { GlassSurface } from "@/components/ui/glass-surface"
 import { Button } from "@/components/ui/button"
@@ -8,25 +9,72 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import type { Profile } from "@/types/database"
 import { cn } from "@/lib/utils"
+import { AvatarIcon, IconPicker, AVATAR_OPTIONS, resolveIconId } from "@/components/ui/avatar-icon"
+import { Mail, TrendingUp, PiggyBank, Camera, X, Loader2 } from "lucide-react"
 
-const AVATARS = ["🎯","📸","🦁","🔥","⚡","🌊","💎","🚀","🎬","🏆","🦊","✨"]
 const CURRENCIES = [
-  { code: "TRY", symbol: "₺", flag: "🇹🇷", label: "Türk Lirası" },
-  { code: "USD", symbol: "$", flag: "🇺🇸", label: "Dolar" },
-  { code: "EUR", symbol: "€", flag: "🇪🇺", label: "Euro" },
-  { code: "GBP", symbol: "£", flag: "🇬🇧", label: "Sterlin" },
+  { code: "TRY", symbol: "₺", label: "Türk Lirası", color: "#E30A17" },
+  { code: "USD", symbol: "$", label: "Dolar",        color: "#1A4BC4" },
+  { code: "EUR", symbol: "€", label: "Euro",         color: "#003399" },
+  { code: "GBP", symbol: "£", label: "Sterlin",      color: "#012169" },
 ] as const
 
 export function ProfileForm({ profile, userEmail }: { profile: Profile | null; userEmail: string }) {
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(profile?.avatar_url ?? null)
   const [form, setForm] = useState({
     full_name: profile?.full_name || "",
-    avatar_emoji: profile?.avatar_emoji || "🎯",
-    currency: profile?.currency || "TRY",
+    avatar_emoji: resolveIconId(profile?.avatar_emoji),
+    currency: (profile?.currency || "TRY") as "TRY" | "USD" | "EUR" | "GBP",
     monthly_income_goal: profile?.monthly_income_goal?.toString() || "",
     monthly_savings_goal: profile?.monthly_savings_goal?.toString() || "",
   })
+
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { toast.error("Fotoğraf 5MB'dan küçük olmalı"); return }
+
+    setUploading(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setUploading(false); return }
+
+    const ext = file.name.split(".").pop() || "jpg"
+    const path = `${user.id}/avatar.${ext}`
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true, contentType: file.type })
+
+    if (uploadError) { toast.error("Yükleme başarısız"); setUploading(false); return }
+
+    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path)
+    const urlWithBust = `${publicUrl}?t=${Date.now()}`
+
+    const { error: updateError } = await supabase.from("profiles")
+      .update({ avatar_url: urlWithBust })
+      .eq("id", user.id)
+
+    if (updateError) { toast.error("Profil güncellenemedi"); setUploading(false); return }
+
+    setAvatarUrl(urlWithBust)
+    toast.success("Profil fotoğrafı güncellendi")
+    setUploading(false)
+    router.refresh()
+  }
+
+  async function removePhoto() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    await supabase.from("profiles").update({ avatar_url: null }).eq("id", user.id)
+    setAvatarUrl(null)
+    router.refresh()
+  }
 
   async function save() {
     setSaving(true)
@@ -39,69 +87,176 @@ export function ProfileForm({ profile, userEmail }: { profile: Profile | null; u
       monthly_savings_goal: form.monthly_savings_goal ? parseFloat(form.monthly_savings_goal) : null,
     }).eq("id", (await supabase.auth.getUser()).data.user!.id)
     if (error) { toast.error("Güncellenemedi"); setSaving(false); return }
-    toast.success("Profil güncellendi ✓")
+    toast.success("Profil güncellendi")
     setSaving(false); router.refresh()
   }
 
   return (
     <div className="max-w-lg space-y-4">
-      <GlassSurface className="p-6">
-        <h3 className="text-sm font-semibold text-white mb-4">Kişisel Bilgiler</h3>
 
-        {/* Avatar */}
-        <div className="mb-5">
-          <p className="text-xs text-white/40 uppercase tracking-wider mb-3">Avatar</p>
-          <div className="flex gap-2 flex-wrap">
-            {AVATARS.map((a) => (
-              <button key={a} onClick={() => setForm((f) => ({ ...f, avatar_emoji: a }))}
-                className={cn("h-10 w-10 rounded-[10px] text-xl flex items-center justify-center transition-all",
-                  form.avatar_emoji === a ? "bg-yellow-500/20 border border-yellow-500/50 scale-110" : "bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08]")}>
-                {a}
+      {/* Avatar hero */}
+      <GlassSurface className="p-6">
+        <div className="flex items-center gap-5 mb-6">
+          {/* Avatar with photo upload overlay */}
+          <div className="relative flex-shrink-0 group">
+            <AvatarIcon id={form.avatar_emoji} avatarUrl={avatarUrl} size="2xl" glow />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="absolute inset-0 rounded-[22px] flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              {uploading
+                ? <Loader2 className="h-6 w-6 text-white animate-spin" />
+                : <Camera className="h-6 w-6 text-white" />
+              }
+            </button>
+            {avatarUrl && (
+              <button
+                type="button"
+                onClick={removePhoto}
+                className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+              >
+                <X className="h-3 w-3" />
               </button>
-            ))}
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <p className="text-lg font-bold text-white truncate">
+              {form.full_name || "İsimsiz Kullanıcı"}
+            </p>
+            <p className="text-sm text-white/40 truncate">{userEmail}</p>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="mt-2 flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
+            >
+              <Camera className="h-3 w-3" />
+              {avatarUrl ? "Fotoğrafı değiştir" : "Fotoğraf yükle"}
+            </button>
           </div>
         </div>
 
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handlePhotoChange}
+        />
+
+        {!avatarUrl && (
+          <>
+            <p className="text-[11px] text-white/35 uppercase tracking-widest font-semibold mb-3">Avatar Seç</p>
+            <IconPicker
+              value={form.avatar_emoji}
+              onChange={(id) => setForm(f => ({ ...f, avatar_emoji: id }))}
+              pool={AVATAR_OPTIONS}
+              columns={6}
+            />
+          </>
+        )}
+        {avatarUrl && (
+          <p className="text-[11px] text-white/25 mt-1">Fotoğraf aktif — avatar ikonu gizlendi</p>
+        )}
+      </GlassSurface>
+
+      {/* Kişisel bilgiler */}
+      <GlassSurface className="p-6">
+        <h3 className="text-sm font-semibold text-white mb-4">Kişisel Bilgiler</h3>
         <div className="space-y-3">
-          <Input label="Ad Soyad" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} placeholder="Adın ve soyadın" />
+          <Input
+            label="Ad Soyad"
+            value={form.full_name}
+            onChange={(e) => setForm(f => ({ ...f, full_name: e.target.value }))}
+            placeholder="Adın ve soyadın"
+          />
           <div>
-            <p className="text-xs text-white/40 uppercase tracking-wider mb-1.5">E-posta</p>
-            <p className="px-4 py-3 rounded-[12px] bg-white/[0.03] border border-white/[0.06] text-sm text-white/40">{userEmail}</p>
+            <p className="text-[11px] text-white/35 uppercase tracking-widest font-semibold mb-1.5">E-posta</p>
+            <div className="flex items-center gap-3 px-4 py-3 rounded-[12px] bg-white/[0.03] border border-white/[0.06]">
+              <Mail className="h-4 w-4 text-white/25 flex-shrink-0" />
+              <p className="text-sm text-white/40 truncate">{userEmail}</p>
+            </div>
           </div>
         </div>
       </GlassSurface>
 
+      {/* Para birimi */}
       <GlassSurface className="p-6">
         <h3 className="text-sm font-semibold text-white mb-4">Para Birimi</h3>
         <div className="grid grid-cols-2 gap-2">
-          {CURRENCIES.map((c) => (
-            <button key={c.code} onClick={() => setForm((f) => ({ ...f, currency: c.code }))}
-              className={cn("flex items-center gap-2.5 p-3 rounded-[12px] border text-left transition-all",
-                form.currency === c.code ? "border-yellow-500/40 bg-yellow-500/10" : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06]")}>
-              <span className="text-xl">{c.flag}</span>
-              <div>
-                <p className="text-xs font-medium text-white/80">{c.label}</p>
-                <p className="text-[10px] text-white/30">{c.code} · {c.symbol}</p>
-              </div>
-            </button>
-          ))}
+          {CURRENCIES.map((c) => {
+            const active = form.currency === c.code
+            return (
+              <button
+                key={c.code}
+                onClick={() => setForm(f => ({ ...f, currency: c.code }))}
+                className={cn(
+                  "flex items-center gap-3 p-3.5 rounded-[14px] border text-left transition-all",
+                  active
+                    ? "border-white/20 bg-white/[0.07]"
+                    : "border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.05]"
+                )}
+              >
+                <div
+                  className="h-9 w-9 rounded-[10px] flex items-center justify-center flex-shrink-0 text-white font-black text-base"
+                  style={{
+                    background: active ? c.color : `${c.color}80`,
+                    boxShadow: active ? `0 4px 12px ${c.color}40` : "none",
+                  }}
+                >
+                  {c.symbol}
+                </div>
+                <div>
+                  <p className={cn("text-xs font-semibold", active ? "text-white" : "text-white/60")}>{c.label}</p>
+                  <p className="text-[10px] text-white/30">{c.code}</p>
+                </div>
+                {active && (
+                  <div className="ml-auto h-4 w-4 rounded-full border-2 border-white/60 flex items-center justify-center flex-shrink-0">
+                    <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                  </div>
+                )}
+              </button>
+            )
+          })}
         </div>
       </GlassSurface>
 
+      {/* Aylık hedefler */}
       <GlassSurface className="p-6">
         <h3 className="text-sm font-semibold text-white mb-4">Aylık Hedefler</h3>
         <div className="space-y-3">
-          <Input label="Gelir Hedefi" type="number" placeholder="50000" value={form.monthly_income_goal}
-            onChange={(e) => setForm((f) => ({ ...f, monthly_income_goal: e.target.value }))}
-            hint="Bu ay ne kadar kazanmak istiyorsun?" />
-          <Input label="Tasarruf Hedefi" type="number" placeholder="10000" value={form.monthly_savings_goal}
-            onChange={(e) => setForm((f) => ({ ...f, monthly_savings_goal: e.target.value }))}
-            hint="Bu ay ne kadar biriktirmek istiyorsun?" />
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <TrendingUp className="h-4 w-4 text-green-400/60" />
+            </div>
+            <input
+              type="number"
+              placeholder="Gelir hedefi (TL)"
+              value={form.monthly_income_goal}
+              onChange={(e) => setForm(f => ({ ...f, monthly_income_goal: e.target.value }))}
+              className="w-full pl-11 pr-4 py-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-green-500/30 focus:bg-white/[0.06] transition-all"
+            />
+          </div>
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <PiggyBank className="h-4 w-4 text-blue-400/60" />
+            </div>
+            <input
+              type="number"
+              placeholder="Tasarruf hedefi (TL)"
+              value={form.monthly_savings_goal}
+              onChange={(e) => setForm(f => ({ ...f, monthly_savings_goal: e.target.value }))}
+              className="w-full pl-11 pr-4 py-3 rounded-[12px] bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-blue-500/30 focus:bg-white/[0.06] transition-all"
+            />
+          </div>
         </div>
       </GlassSurface>
 
       <Button variant="primary" size="lg" loading={saving} onClick={save} className="w-full">
-        Kaydet ✓
+        Kaydet
       </Button>
     </div>
   )

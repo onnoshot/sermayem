@@ -9,13 +9,14 @@ interface DashboardHeaderProps {
   greeting: string
   firstName: string
   avatarEmoji: string
+  avatarUrl?: string | null
   date: string
   monthIncome: number
   monthExpense: number
   currency: Currency
 }
 
-export function DashboardHeader({ greeting, firstName, avatarEmoji, date, monthIncome, monthExpense, currency }: DashboardHeaderProps) {
+export function DashboardHeader({ greeting, firstName, avatarEmoji, avatarUrl, date, monthIncome, monthExpense, currency }: DashboardHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
@@ -27,7 +28,7 @@ export function DashboardHeader({ greeting, firstName, avatarEmoji, date, monthI
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Left: avatar + greeting */}
         <div className="flex items-center gap-3">
-          <AvatarIcon id={avatarEmoji} size="lg" glow />
+          <AvatarIcon id={avatarEmoji} avatarUrl={avatarUrl} size="lg" glow />
           <div>
             <p className="text-[10px] text-white/30 uppercase tracking-[0.18em] mb-0.5">{date}</p>
             <h1 className="text-[22px] sm:text-2xl font-black text-white tracking-tight leading-none">

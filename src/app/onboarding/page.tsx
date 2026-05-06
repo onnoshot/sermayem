@@ -9,13 +9,13 @@ import { AmbientBackground } from "@/components/ambient-background"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { ChevronRight } from "lucide-react"
+import { AvatarIcon, IconPicker, AVATAR_OPTIONS, resolveIconId } from "@/components/ui/avatar-icon"
 
-const AVATARS = ["🎯","📸","🦁","🔥","⚡","🌊","💎","🚀","🎬","🏆","🦊","✨"]
 const CURRENCIES = [
-  { code: "TRY", label: "Türk Lirası", symbol: "₺", flag: "🇹🇷" },
-  { code: "USD", label: "Amerikan Doları", symbol: "$", flag: "🇺🇸" },
-  { code: "EUR", label: "Euro", symbol: "€", flag: "🇪🇺" },
-  { code: "GBP", label: "İngiliz Sterlini", symbol: "£", flag: "🇬🇧" },
+  { code: "TRY", label: "Türk Lirası",      symbol: "₺", color: "#E30A17" },
+  { code: "USD", label: "Amerikan Doları",   symbol: "$", color: "#1A4BC4" },
+  { code: "EUR", label: "Euro",              symbol: "€", color: "#003399" },
+  { code: "GBP", label: "İngiliz Sterlini", symbol: "£", color: "#012169" },
 ] as const
 
 const GENDERS = [
@@ -47,7 +47,7 @@ export default function OnboardingPage() {
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
     full_name: "",
-    avatar_emoji: "🎯",
+    avatar_emoji: "target",
     age: "",
     gender: "" as "erkek" | "kadin" | "belirtmek_istemiyorum" | "",
     city: "",
@@ -99,20 +99,20 @@ export default function OnboardingPage() {
             <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ type: "spring", stiffness: 260, damping: 24 }}>
               <GlassSurface className="p-8">
                 <div className="text-center mb-6">
-                  <div className="text-5xl mb-3">{form.avatar_emoji}</div>
+                  <div className="flex justify-center mb-4">
+                    <AvatarIcon id={form.avatar_emoji} size="2xl" glow />
+                  </div>
                   <h1 className="text-2xl font-bold text-white mb-1">Hoş geldin!</h1>
                   <p className="text-sm text-white/50">Seni tanıyalım</p>
                 </div>
                 <div className="mb-5">
-                  <p className="text-xs text-white/50 uppercase tracking-wider mb-3">Avatar Seç</p>
-                  <div className="grid grid-cols-6 gap-2">
-                    {AVATARS.map((a) => (
-                      <button key={a} onClick={() => setForm((f) => ({ ...f, avatar_emoji: a }))}
-                        className={`h-10 w-10 rounded-xl text-xl flex items-center justify-center transition-all ${form.avatar_emoji === a ? "bg-[#E50001]/15 border border-[#E50001]/50 scale-110" : "bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08]"}`}>
-                        {a}
-                      </button>
-                    ))}
-                  </div>
+                  <p className="text-[11px] text-white/35 uppercase tracking-widest font-semibold mb-3">Avatar Seç</p>
+                  <IconPicker
+                    value={form.avatar_emoji}
+                    onChange={(id) => setForm(f => ({ ...f, avatar_emoji: id }))}
+                    pool={AVATAR_OPTIONS}
+                    columns={6}
+                  />
                 </div>
                 <Input label="Adın" placeholder="Onur" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} />
                 <Button variant="primary" size="lg" className="w-full mt-6" onClick={() => setStep(1)}>
@@ -200,17 +200,25 @@ export default function OnboardingPage() {
                   <p className="text-sm text-white/50">Hangi para birimi ile takip etmek istersin?</p>
                 </div>
                 <div className="space-y-2 mb-6">
-                  {CURRENCIES.map((c) => (
-                    <button key={c.code} onClick={() => setForm((f) => ({ ...f, currency: c.code }))}
-                      className={`w-full flex items-center gap-3 p-4 rounded-[16px] border transition-all text-left ${form.currency === c.code ? "border-[#E50001]/50 bg-[#E50001]/10" : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06]"}`}>
-                      <span className="text-2xl">{c.flag}</span>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-white">{c.label}</p>
-                        <p className="text-xs text-white/40">{c.code} · {c.symbol}</p>
-                      </div>
-                      {form.currency === c.code && <div className="h-2 w-2 rounded-full bg-[#E50001]" />}
-                    </button>
-                  ))}
+                  {CURRENCIES.map((c) => {
+                    const active = form.currency === c.code
+                    return (
+                      <button key={c.code} onClick={() => setForm((f) => ({ ...f, currency: c.code }))}
+                        className={`w-full flex items-center gap-3 p-4 rounded-[16px] border transition-all text-left ${active ? "border-[#E50001]/50 bg-[#E50001]/10" : "border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06]"}`}>
+                        <div
+                          className="h-10 w-10 rounded-[10px] flex items-center justify-center flex-shrink-0 text-white font-black text-lg"
+                          style={{ background: active ? c.color : `${c.color}80` }}
+                        >
+                          {c.symbol}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-white">{c.label}</p>
+                          <p className="text-xs text-white/40">{c.code} · {c.symbol}</p>
+                        </div>
+                        {active && <div className="h-2 w-2 rounded-full bg-[#E50001]" />}
+                      </button>
+                    )
+                  })}
                 </div>
                 <div className="flex gap-3">
                   <Button variant="ghost" size="lg" className="flex-1" onClick={() => setStep(1)}>Geri</Button>

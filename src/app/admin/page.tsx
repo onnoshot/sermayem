@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { formatCurrencyCompact } from "@/lib/format"
 import { Users, TrendingUp, Calendar, Activity } from "lucide-react"
 import { AvatarIcon } from "@/components/ui/avatar-icon"
+import { AdminProToggle } from "@/components/admin/admin-pro-toggle"
 
 export const metadata = { title: "Admin" }
 
@@ -34,9 +35,7 @@ export default async function AdminPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
-
-  const { data: { user: authUser } } = await supabase.auth.getUser()
-  if (authUser?.email !== ADMIN_EMAIL) redirect("/app")
+  if (user.email !== ADMIN_EMAIL) redirect("/app")
 
   const admin = createAdminClient()
 
@@ -44,10 +43,12 @@ export default async function AdminPage() {
     { data: { users: authUsers } },
     { data: profiles },
     { data: transactions },
+    { data: plans },
   ] = await Promise.all([
     admin.auth.admin.listUsers({ perPage: 1000 }),
     admin.from("profiles").select("*").order("created_at", { ascending: false }),
     admin.from("transactions").select("user_id, amount, type, status, created_at"),
+    admin.from("user_plans").select("user_id, plan, status, pro_until"),
   ])
 
   const now = new Date()
@@ -63,10 +64,17 @@ export default async function AdminPage() {
 
   const activeUserIds = new Set(transactions?.map(t => t.user_id))
   const activeUsers = activeUserIds.size
-
   const totalVolume = transactions?.reduce((a, t) => a + Number(t.amount), 0) || 0
+  const proCount = plans?.filter(p => {
+    if (p.plan !== "pro") return false
+    if (p.pro_until && new Date(p.pro_until) < now) return false
+    return true
+  }).length || 0
+
+  const planMap = new Map(plans?.map(p => [p.user_id, p]) ?? [])
 
   const userMap = new Map<string, {
+    id: string
     email: string
     created_at: string
     txCount: number
@@ -75,27 +83,17 @@ export default async function AdminPage() {
   }>()
 
   authUsers?.forEach(u => {
-    userMap.set(u.id, {
-      email: u.email || "",
-      created_at: u.created_at,
-      txCount: 0,
-      totalVolume: 0,
-    })
+    userMap.set(u.id, { id: u.id, email: u.email || "", created_at: u.created_at, txCount: 0, totalVolume: 0 })
   })
 
   transactions?.forEach(t => {
     const entry = userMap.get(t.user_id)
-    if (entry) {
-      entry.txCount++
-      entry.totalVolume += Number(t.amount)
-    }
+    if (entry) { entry.txCount++; entry.totalVolume += Number(t.amount) }
   })
 
   profiles?.forEach(p => {
     const entry = userMap.get(p.id)
-    if (entry) {
-      (entry as typeof entry & { profile: typeof p }).profile = p
-    }
+    if (entry) (entry as typeof entry & { profile: typeof p }).profile = p
   })
 
   const userList = Array.from(userMap.values()).sort(
@@ -104,6 +102,13 @@ export default async function AdminPage() {
 
   function fmtDate(d: string) {
     return new Date(d).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })
+  }
+
+  function isUserPro(userId: string): boolean {
+    const plan = planMap.get(userId)
+    if (!plan || plan.plan !== "pro") return false
+    if (plan.pro_until && new Date(plan.pro_until) < now) return false
+    return true
   }
 
   const genderLabels: Record<string, string> = {
@@ -132,7 +137,7 @@ export default async function AdminPage() {
           <StatCard icon={Users} label="Toplam Kullanıcı" value={totalUsers} sub={`+${usersLastMonth} geçen ay`} color="#E50001" />
           <StatCard icon={Calendar} label="Bu Ay Kayıt" value={usersThisMonth} sub="yeni kullanıcı" color="#8B5CF6" />
           <StatCard icon={Activity} label="Aktif Kullanıcı" value={activeUsers} sub="işlem yaptı" color="#22C55E" />
-          <StatCard icon={TrendingUp} label="Toplam Hacim" value={formatCurrencyCompact(totalVolume, "TRY")} sub="tüm işlemler" color="#3B82F6" />
+          <StatCard icon={TrendingUp} label="Pro Üye" value={proCount} sub="aktif pro plan" color="#F59E0B" />
         </div>
 
         {/* User table */}
@@ -145,7 +150,7 @@ export default async function AdminPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/[0.05]">
-                  {["Kullanıcı", "E-posta", "Yaş", "Cinsiyet", "Şehir", "Para Birimi", "İşlem", "Hacim", "Kayıt Tarihi"].map(h => (
+                  {["Kullanıcı", "E-posta", "Üyelik", "Yaş", "Cinsiyet", "Şehir", "Para Birimi", "İşlem", "Hacim", "Kayıt Tarihi"].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-[11px] text-white/30 font-medium uppercase tracking-wider whitespace-nowrap">
                       {h}
                     </th>
@@ -155,17 +160,21 @@ export default async function AdminPage() {
               <tbody>
                 {userList.map((u, i) => {
                   const p = (u as typeof u & { profile?: typeof profiles extends (infer T)[] | null ? T : never }).profile
+                  const pro = isUserPro(u.id)
                   return (
-                    <tr key={u.email} className={`border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
+                    <tr key={u.id} className={`border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors ${i % 2 === 0 ? "" : "bg-white/[0.01]"}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <AvatarIcon id={p?.avatar_emoji} size="sm" />
+                          <AvatarIcon id={p?.avatar_emoji} avatarUrl={p?.avatar_url} size="sm" />
                           <span className="text-sm text-white/80 font-medium truncate max-w-[120px]">
                             {p?.full_name || "İsimsiz"}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs text-white/50">{u.email}</td>
+                      <td className="px-4 py-3 text-xs text-white/50 max-w-[160px] truncate">{u.email}</td>
+                      <td className="px-4 py-3">
+                        <AdminProToggle userId={u.id} isPro={pro} />
+                      </td>
                       <td className="px-4 py-3 text-sm text-white/60">{p?.age || "-"}</td>
                       <td className="px-4 py-3 text-xs text-white/50">{p?.gender ? genderLabels[p.gender] : "-"}</td>
                       <td className="px-4 py-3 text-xs text-white/50">{p?.city || "-"}</td>

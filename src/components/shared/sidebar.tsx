@@ -10,6 +10,7 @@ import {
   BarChart3, User, Settings, LogOut, Plus, ChevronLeft, ChevronRight, X,
   Wallet, Target, Crown, Sparkles,
 } from "lucide-react"
+import { AvatarIcon } from "@/components/ui/avatar-icon"
 import { useUIStore } from "@/lib/stores/ui-store"
 import type { Profile } from "@/types/database"
 import { useEffect, useState } from "react"
@@ -247,9 +248,7 @@ export function Sidebar({ profile }: SidebarProps) {
           "flex items-center gap-3 rounded-[12px] mt-1 p-2.5 bg-white/[0.04] border border-white/[0.07]",
           !sidebarOpen && "justify-center"
         )}>
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-red-600/15 to-red-500/15 border border-red-500/20 flex items-center justify-center text-lg flex-shrink-0">
-            {profile?.avatar_emoji || "🎯"}
-          </div>
+          <AvatarIcon id={profile?.avatar_emoji} avatarUrl={profile?.avatar_url} size="md" />
           {sidebarOpen && (
             <>
               <div className="flex-1 min-w-0">

@@ -95,6 +95,7 @@ const SIZES = {
 
 interface AvatarIconProps {
   id?: string | null
+  avatarUrl?: string | null
   size?: keyof typeof SIZES
   pool?: IconOption[]
   className?: string
@@ -103,14 +104,28 @@ interface AvatarIconProps {
 
 export function AvatarIcon({
   id,
+  avatarUrl,
   size = "md",
   pool = AVATAR_OPTIONS,
   className,
   glow = false,
 }: AvatarIconProps) {
+  const { box, icon: iconSize, radius } = SIZES[size]
+
+  if (avatarUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={avatarUrl}
+        alt="Profil fotoğrafı"
+        className={cn(box, radius, "object-cover flex-shrink-0", className)}
+        style={glow ? { boxShadow: "0 4px 16px rgba(0,0,0,0.4)" } : undefined}
+      />
+    )
+  }
+
   const resolvedId = resolveIconId(id, pool)
   const option = findIcon(resolvedId, pool)
-  const { box, icon: iconSize, radius } = SIZES[size]
   const Icon = option.icon
 
   return (

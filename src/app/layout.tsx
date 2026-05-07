@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Script from "next/script"
 import { Providers } from "./providers"
+import { CookieBanner } from "@/components/cookie-banner"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -36,9 +37,18 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
     shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    apple: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Sermayem",
   },
   alternates: { canonical: "https://sermayem.com" },
   verification: { google: "n8WmTwZ39tbjnenjrDDZaQ-Dzm2fMAGUmvZWDa-v6bM" },
@@ -57,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-J7KB4CV8E7');`,
         }} />
         <Providers>{children}</Providers>
+        <CookieBanner />
       </body>
     </html>
   )

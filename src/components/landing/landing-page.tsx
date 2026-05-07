@@ -356,7 +356,7 @@ function TurkeyPinSvg() {
 
 const SECURITY = [
   { svg: <div className="h-10 w-10"><ShieldSvg /></div>, title: "AES-256 Şifreleme", desc: "Tüm verileriniz hem aktarım hem depolamada askeri düzey şifrelemeyle korunur. TLS 1.3 transit güvenliği." },
-  { svg: <div className="h-10 w-10"><NoShareSvg /></div>, title: "Sıfır Veri Paylaşımı", desc: "Finansal verileriniz hiçbir üçüncü tarafla, reklam ağıyla veya iş ortağıyla kesinlikle paylaşılmaz. KVKK uyumlu." },
+  { svg: <div className="h-10 w-10"><NoShareSvg /></div>, title: "Sıfır Veri Paylaşımı", desc: "Finansal verileriniz hiçbir üçüncü tarafla, reklam ağıyla veya iş ortağıyla kesinlikle paylaşılmaz." },
   { svg: <div className="h-10 w-10"><UptimeSvg /></div>, title: "%99.9 Çalışma Garantisi", desc: "Enterprise altyapı üzerinde yedekli sunucularla kesintisiz hizmet. Otomatik yedekleme ve küresel CDN." },
   { svg: <div className="h-10 w-10"><TurkeyPinSvg /></div>, title: "Türkiye'de Geliştiriliyor", desc: "Türk kullanıcılar için Türk geliştiriciler tarafından yapılıyor. Türkçe destek, yerel ihtiyaçlar." },
 ]
@@ -486,7 +486,7 @@ export function LandingPage() {
                 transition={{ delay: 0.4 }}
                 className="flex items-center gap-5 text-[11px] text-white/22"
               >
-                {["256-bit güvenlik", "KVKK uyumlu", "Türkiye'de geliştiriliyor"].map((item, i) => (
+                {["256-bit güvenlik", "Türkiye'de geliştiriliyor"].map((item, i) => (
                   <span key={item} className="flex items-center gap-1.5">
                     {i > 0 && <span className="h-[3px] w-[3px] rounded-full bg-white/15" />}
                     {item}
@@ -720,7 +720,7 @@ export function LandingPage() {
           transition={{ delay: 0.3 }}
           className="mt-7 flex flex-wrap items-center justify-center gap-x-8 gap-y-3"
         >
-          {["AES-256 şifreleme", "TLS 1.3", "KVKK uyumlu", "Sıfır veri satışı", "%99.9 uptime SLA"].map((label) => (
+          {["AES-256 şifreleme", "TLS 1.3", "Sıfır veri satışı", "%99.9 uptime SLA"].map((label) => (
             <div key={label} className="flex items-center gap-2 text-[11px] text-white/18">
               <svg viewBox="0 0 8 8" className="w-2 h-2 flex-shrink-0" fill="none">
                 <circle cx="4" cy="4" r="3" fill="rgba(52,211,153,0.25)" />
@@ -775,6 +775,12 @@ export function LandingPage() {
             <Link href="/auth/signup" className="hover:text-white/38 transition-colors">Kayıt Ol</Link>
           </div>
           <p className="text-[10px] text-white/14">2026 Sermayem. Tüm hakları saklıdır.</p>
+        </div>
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 mt-4 pt-4 border-t border-white/[0.03] flex items-center justify-center gap-5 flex-wrap">
+          <Link href="/gizlilik" className="text-[10px] text-white/12 hover:text-white/25 transition-colors">Gizlilik Politikası</Link>
+          <Link href="/kullanim-kosullari" className="text-[10px] text-white/12 hover:text-white/25 transition-colors">Kullanım Koşulları</Link>
+          <Link href="/kvkk" className="text-[10px] text-white/12 hover:text-white/25 transition-colors">KVKK</Link>
+          <Link href="/cerez-politikasi" className="text-[10px] text-white/12 hover:text-white/25 transition-colors">Çerez Politikası</Link>
         </div>
       </footer>
     </main>

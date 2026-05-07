@@ -18,6 +18,8 @@ export default function SignupPage() {
   const router = useRouter()
   const [showPass, setShowPass] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [transferAccepted, setTransferAccepted] = useState(false)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
   })
@@ -76,7 +78,73 @@ export default function SignupPage() {
           </div>
           <Input label="Şifre Tekrar" type={showPass ? "text" : "password"} placeholder="Şifreni tekrar gir" autoComplete="new-password" error={errors.confirm_password?.message} {...register("confirm_password")} />
 
-          <Button type="submit" variant="primary" size="lg" loading={isSubmitting} className="w-full mt-2">
+          <div className="space-y-2 pt-1">
+            <label className="flex items-start gap-2.5 cursor-pointer group">
+              <div className="mt-0.5 flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="sr-only"
+                />
+                <div
+                  className="h-4 w-4 rounded-[4px] border flex items-center justify-center transition-all"
+                  style={{
+                    background: termsAccepted ? "#E50001" : "transparent",
+                    borderColor: termsAccepted ? "#E50001" : "rgba(255,255,255,0.2)",
+                  }}
+                >
+                  {termsAccepted && (
+                    <svg viewBox="0 0 10 8" className="w-2.5 h-2" fill="none">
+                      <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-[11px] text-white/45 leading-relaxed">
+                <Link href="/kullanim-kosullari" className="text-white/60 underline hover:text-white/80 transition-colors" target="_blank">Kullanım Koşulları</Link>
+                {" "}ve{" "}
+                <Link href="/gizlilik" className="text-white/60 underline hover:text-white/80 transition-colors" target="_blank">Gizlilik Politikasını</Link>
+                {" "}okudum ve kabul ediyorum.
+              </span>
+            </label>
+
+            <label className="flex items-start gap-2.5 cursor-pointer group">
+              <div className="mt-0.5 flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={transferAccepted}
+                  onChange={(e) => setTransferAccepted(e.target.checked)}
+                  className="sr-only"
+                />
+                <div
+                  className="h-4 w-4 rounded-[4px] border flex items-center justify-center transition-all"
+                  style={{
+                    background: transferAccepted ? "#E50001" : "transparent",
+                    borderColor: transferAccepted ? "#E50001" : "rgba(255,255,255,0.2)",
+                  }}
+                >
+                  {transferAccepted && (
+                    <svg viewBox="0 0 10 8" className="w-2.5 h-2" fill="none">
+                      <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-[11px] text-white/45 leading-relaxed">
+                Verilerimin teknik altyapı amacıyla yurt dışına aktarılmasına (<Link href="/kvkk" className="text-white/60 underline hover:text-white/80 transition-colors" target="_blank">KVKK Md. 9</Link>) onay veriyorum.
+              </span>
+            </label>
+          </div>
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            loading={isSubmitting}
+            disabled={!termsAccepted || !transferAccepted}
+            className="w-full mt-2"
+          >
             Hesap Oluştur
           </Button>
         </form>

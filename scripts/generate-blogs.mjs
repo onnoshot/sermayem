@@ -98,11 +98,13 @@ async function main() {
   })
 
   const toolUse = message.content.find((b) => b.type === "tool_use")
+  console.log("Content types:", message.content.map(b => b.type).join(", "))
   if (!toolUse || toolUse.type !== "tool_use") {
     throw new Error("No tool_use block in AI response")
   }
 
-  const posts = toolUse.input.posts
+  console.log("Input keys:", Object.keys(toolUse.input || {}).join(", "))
+  const posts = (toolUse.input?.posts) ?? []
   console.log(`Generated ${posts.length} posts`)
 
   const saved = []

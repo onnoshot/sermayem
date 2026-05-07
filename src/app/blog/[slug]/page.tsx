@@ -1,15 +1,17 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { getPost, getAllPosts } from "@/lib/blog"
+import { getPost, getAllPosts, getPostWithGenerated, getAllPostsWithGenerated } from "@/lib/blog"
 
 export async function generateStaticParams() {
   return getAllPosts().map((p) => ({ slug: p.slug }))
 }
 
+export const revalidate = 3600
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const post = getPost(slug)
+  const post = await getPostWithGenerated(slug)
   if (!post) return {}
   return {
     title: post.title,
@@ -35,27 +37,48 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = getPost(slug)
+  const post = await getPostWithGenerated(slug)
   if (!post) notFound()
+
+  const allPostsList = await getAllPostsWithGenerated()
+  const relatedPosts = allPostsList
+    .filter((p) => p.slug !== slug && (p.category === post.category || p.tags.some((t) => post.tags.includes(t))))
+    .slice(0, 3)
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description: post.description,
-    datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
-    author: { "@type": "Organization", name: "Sermayem", url: "https://sermayem.com" },
-    publisher: {
-      "@type": "Organization",
-      name: "Sermayem",
-      url: "https://sermayem.com",
-      logo: { "@type": "ImageObject", url: "https://sermayem.com/favicon.svg" },
-    },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `https://sermayem.com/blog/${slug}` },
-    keywords: post.tags.join(", "),
-    articleSection: post.category,
-    inLanguage: "tr-TR",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        headline: post.title,
+        description: post.description,
+        datePublished: post.publishedAt,
+        dateModified: post.publishedAt,
+        author: { "@type": "Organization", name: "Sermayem", url: "https://sermayem.com" },
+        publisher: {
+          "@type": "Organization",
+          name: "Sermayem",
+          url: "https://sermayem.com",
+          logo: { "@type": "ImageObject", url: "https://sermayem.com/og-image.png", width: 1200, height: 630 },
+        },
+        image: { "@type": "ImageObject", url: "https://sermayem.com/og-image.png", width: 1200, height: 630 },
+        mainEntityOfPage: { "@type": "WebPage", "@id": `https://sermayem.com/blog/${slug}` },
+        keywords: post.tags.join(", "),
+        articleSection: post.category,
+        inLanguage: "tr-TR",
+        url: `https://sermayem.com/blog/${slug}`,
+        wordCount: Math.round(post.content.replace(/<[^>]+>/g, "").split(/\s+/).length),
+        timeRequired: `PT${post.readTime}M`,
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Ana Sayfa", item: "https://sermayem.com" },
+          { "@type": "ListItem", position: 2, name: "Blog", item: "https://sermayem.com/blog" },
+          { "@type": "ListItem", position: 3, name: post.title, item: `https://sermayem.com/blog/${slug}` },
+        ],
+      },
+    ],
   }
 
   return (
@@ -117,6 +140,23 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </span>
             ))}
           </div>
+
+          {/* Related Posts */}
+          {relatedPosts.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-sm font-semibold text-white/40 uppercase tracking-widest mb-4">İlgili Yazılar</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {relatedPosts.map((rp) => (
+                  <Link key={rp.slug} href={`/blog/${rp.slug}`}
+                    className="group block p-4 rounded-[16px] bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.1] transition-all">
+                    <span className="text-[9px] font-semibold uppercase tracking-wider text-[#E50001]/60 block mb-1.5">{rp.category}</span>
+                    <p className="text-xs font-medium text-white/75 leading-snug group-hover:text-white transition-colors line-clamp-3">{rp.title}</p>
+                    <p className="text-[10px] text-white/25 mt-2">{rp.readTime} dk okuma</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </main>
 
         <footer className="border-t border-white/[0.05] mt-12 py-8">

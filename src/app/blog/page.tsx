@@ -1,22 +1,56 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { getAllPosts, categories } from "@/lib/blog"
+import { getAllPostsWithGenerated } from "@/lib/blog"
 
 export const metadata: Metadata = {
-  title: "Blog — Kişisel Finans, Bütçe ve Yatırım Rehberleri",
-  description: "Gelir gider takibi, bütçe yönetimi, tasarruf yöntemleri ve yatırım stratejileri hakkında kapsamlı Türkçe rehberler. Finansal özgürlüğe giden yolda bilgi edinin.",
+  title: "Finans Rehberleri — Tasarruf, Bütçe ve Yatırım | Sermayem Blog",
+  description: "Para biriktirme yolları, aylık bütçe yönetimi, yatırım araçları ve finansal özgürlük hakkında 60+ kapsamlı Türkçe rehber. Gelir gider takibinden BES'e, enflasyona karşı korumadan kredi notuna kadar.",
+  keywords: ["para biriktirme", "bütçe yönetimi", "kişisel finans", "tasarruf yöntemleri", "yatırım rehberi", "gelir gider takibi"],
   openGraph: {
-    title: "Sermayem Blog — Kişisel Finans Rehberleri",
-    description: "Gelir gider takibi, bütçe yönetimi, tasarruf ve yatırım konularında kapsamlı Türkçe içerikler.",
+    title: "Sermayem Blog — 60+ Kişisel Finans Rehberi",
+    description: "Para biriktirme, bütçe yönetimi, yatırım ve finansal özgürlük üzerine kapsamlı Türkçe içerikler.",
     type: "website",
+    url: "https://sermayem.com/blog",
+    images: [{ url: "https://sermayem.com/og-image.png", width: 1200, height: 630, alt: "Sermayem Blog" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sermayem Blog — Kişisel Finans Rehberleri",
+    description: "60+ kapsamlı Türkçe rehberle finansal özgürlüğünüze ulaşın.",
+    images: ["https://sermayem.com/og-image.png"],
   },
   alternates: { canonical: "https://sermayem.com/blog" },
 }
 
-export default function BlogPage() {
-  const posts = getAllPosts()
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Blog",
+      name: "Sermayem Blog",
+      description: "Türkiye'nin kişisel finans blogu. Tasarruf, bütçe, yatırım ve finansal özgürlük üzerine rehberler.",
+      url: "https://sermayem.com/blog",
+      inLanguage: "tr-TR",
+      publisher: { "@type": "Organization", name: "Sermayem", url: "https://sermayem.com" },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Ana Sayfa", item: "https://sermayem.com" },
+        { "@type": "ListItem", position: 2, name: "Blog", item: "https://sermayem.com/blog" },
+      ],
+    },
+  ],
+}
+
+export const revalidate = 3600
+
+export default async function BlogPage() {
+  const posts = await getAllPostsWithGenerated()
 
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <div className="min-h-screen bg-[#08080C]">
       {/* Header */}
       <header className="border-b border-white/[0.06] bg-[#08080C]/95 sticky top-0 z-10 backdrop-blur-md">
@@ -71,5 +105,6 @@ export default function BlogPage() {
         </div>
       </footer>
     </div>
+    </>
   )
 }

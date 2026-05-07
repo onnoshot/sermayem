@@ -1071,8 +1071,10 @@ export const posts: BlogPost[] = [
 ]
 
 import { extraPosts } from "./blog-posts-extra"
+import { extraPosts2 } from "./blog-posts-extra2"
+import { createClient } from "@supabase/supabase-js"
 
-const allPosts = [...posts, ...extraPosts]
+const allPosts = [...posts, ...extraPosts, ...extraPosts2]
 
 export function getPost(slug: string): BlogPost | undefined {
   return allPosts.find((p) => p.slug === slug)
@@ -1089,3 +1091,60 @@ export function getPostsByCategory(category: string): BlogPost[] {
 }
 
 export const categories = [...new Set(allPosts.map((p) => p.category))]
+
+function dbRowToPost(row: Record<string, unknown>): BlogPost {
+  return {
+    slug: row.slug as string,
+    title: row.title as string,
+    description: row.description as string,
+    content: row.content as string,
+    publishedAt: row.published_at as string,
+    readTime: row.read_time as number,
+    category: row.category as string,
+    tags: row.tags as string[],
+  }
+}
+
+function supabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } }
+  )
+}
+
+export async function getGeneratedPosts(): Promise<BlogPost[]> {
+  try {
+    const { data } = await supabaseClient()
+      .from("generated_blog_posts")
+      .select("slug, title, description, content, published_at, read_time, category, tags")
+      .order("published_at", { ascending: false })
+    if (!data) return []
+    return data.map(dbRowToPost)
+  } catch {
+    return []
+  }
+}
+
+export async function getAllPostsWithGenerated(): Promise<BlogPost[]> {
+  const generated = await getGeneratedPosts()
+  return [...allPosts, ...generated].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  )
+}
+
+export async function getPostWithGenerated(slug: string): Promise<BlogPost | undefined> {
+  const staticPost = allPosts.find((p) => p.slug === slug)
+  if (staticPost) return staticPost
+  try {
+    const { data } = await supabaseClient()
+      .from("generated_blog_posts")
+      .select("slug, title, description, content, published_at, read_time, category, tags")
+      .eq("slug", slug)
+      .single()
+    if (!data) return undefined
+    return dbRowToPost(data as Record<string, unknown>)
+  } catch {
+    return undefined
+  }
+}

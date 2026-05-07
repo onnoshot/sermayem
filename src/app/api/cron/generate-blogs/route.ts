@@ -3,6 +3,8 @@ import Anthropic from "@anthropic-ai/sdk"
 import { revalidatePath } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/admin"
 
+export const maxDuration = 60
+
 interface GeneratedPost {
   slug: string
   title: string

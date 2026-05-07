@@ -98,25 +98,45 @@ export async function GET(req: NextRequest) {
     const message = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 8192,
-      messages: [
+      tools: [
         {
-          role: "user",
-          content: buildPrompt(dateStr),
+          name: "save_blog_posts",
+          description: "Save the generated Turkish finance blog posts",
+          input_schema: {
+            type: "object" as const,
+            properties: {
+              posts: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    slug: { type: "string" },
+                    title: { type: "string" },
+                    description: { type: "string" },
+                    category: { type: "string" },
+                    tags: { type: "array", items: { type: "string" } },
+                    readTime: { type: "number" },
+                    content: { type: "string" },
+                  },
+                  required: ["slug", "title", "description", "category", "tags", "readTime", "content"],
+                },
+              },
+            },
+            required: ["posts"],
+          },
         },
       ],
+      tool_choice: { type: "tool", name: "save_blog_posts" },
+      messages: [{ role: "user", content: buildPrompt(dateStr) }],
     })
 
-    const rawText = message.content
-      .filter((b) => b.type === "text")
-      .map((b) => (b as { type: "text"; text: string }).text)
-      .join("")
-
-    const jsonMatch = rawText.match(/\[[\s\S]*\]/)
-    if (!jsonMatch) {
-      return NextResponse.json({ error: "No JSON array in AI response" }, { status: 500 })
+    const toolUse = message.content.find((b) => b.type === "tool_use")
+    if (!toolUse || toolUse.type !== "tool_use") {
+      return NextResponse.json({ error: "No tool_use block in AI response" }, { status: 500 })
     }
 
-    posts = JSON.parse(jsonMatch[0]) as GeneratedPost[]
+    const input = toolUse.input as { posts: GeneratedPost[] }
+    posts = input.posts
   } catch (err) {
     return NextResponse.json({ error: "AI generation failed", detail: String(err) }, { status: 500 })
   }
